@@ -1,0 +1,61 @@
+object userform: Tuserform
+  Left = -244
+  Top = 370
+  Width = 928
+  Height = 480
+  Caption = #29992#25143#26816#27979
+  Color = clBtnFace
+  Font.Charset = DEFAULT_CHARSET
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'MS Sans Serif'
+  Font.Style = []
+  OldCreateOrder = False
+  PixelsPerInch = 96
+  TextHeight = 13
+  object Label1: TLabel
+    Left = 248
+    Top = 104
+    Width = 20
+    Height = 13
+    Caption = 'user'
+  end
+  object Label2: TLabel
+    Left = 248
+    Top = 168
+    Width = 45
+    Height = 13
+    Caption = 'password'
+  end
+  object Edit1: TEdit
+    Left = 344
+    Top = 104
+    Width = 121
+    Height = 21
+    TabOrder = 0
+  end
+  object Edit2: TEdit
+    Left = 344
+    Top = 160
+    Width = 121
+    Height = 21
+    TabOrder = 1
+  end
+  object Button1: TButton
+    Left = 240
+    Top = 264
+    Width = 75
+    Height = 25
+    Caption = #30830#23450
+    TabOrder = 2
+    OnClick = Button1Click
+  end
+  object Button2: TButton
+    Left = 456
+    Top = 264
+    Width = 75
+    Height = 25
+    Caption = #36864#20986
+    TabOrder = 3
+  end
+end

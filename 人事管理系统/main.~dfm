@@ -1,6 +1,6 @@
 object Main_Form: TMain_Form
-  Left = 109
-  Top = 128
+  Left = 110
+  Top = 57
   Width = 617
   Height = 480
   Caption = #20154#20107#31649#29702#31995#32479
@@ -79,7 +79,37 @@ object Main_Form: TMain_Form
     end
   end
   object MainMenu1: TMainMenu
-    Left = 72
-    Top = 40
+    Left = 40
+    Top = 56
+    object File1: TMenuItem
+      Caption = '&File'
+      object New1: TMenuItem
+        Caption = '&New'
+      end
+      object Open1: TMenuItem
+        Caption = '&Open'
+      end
+      object Save1: TMenuItem
+        Caption = '&Save'
+      end
+      object SaveAs1: TMenuItem
+        Caption = 'Save &As'
+      end
+      object N1: TMenuItem
+        Caption = '-'
+      end
+      object Print1: TMenuItem
+        Caption = '&Print'
+      end
+      object PrintSetup1: TMenuItem
+        Caption = 'Print Set&up'
+      end
+      object N2: TMenuItem
+        Caption = '-'
+      end
+      object Exit1: TMenuItem
+        Caption = 'E&xit'
+      end
+    end
   end
 end

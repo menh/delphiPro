@@ -45,9 +45,9 @@ var
 
 procedure TMain_Form.FormCreate(Sender: TObject);
 begin
-  username:='';
+  username:='12';
   password:='';
-  x1:=false;
+  x1:=true;
   x2:=false;
   x3:=false;
   //checkuserform.ShowModal();
@@ -55,36 +55,36 @@ begin
   begin
     if x1=true then
     begin
-      n4.Enabled:=true;
-      n6.Enabled:=true;
+//      n4.Enabled:=true;
+//      n6.Enabled:=true;
       speedbutton1.Enabled:=true;
       speedbutton3.Enabled:=true;
     end
     else
     begin
-      n4.Enabled:=false;
-      n6.Enabled:=false;
+//      n4.Enabled:=false;
+//      n6.Enabled:=false;
       speedbutton1.Enabled:=false;
       speedbutton3.Enabled:=false;
     end;
-    if x2=ture then
+    if x2=true then
     begin
-     n2.Enabled:=true;
+//     n2.Enabled:=true;
      speedbutton4.Enabled:=true;
     end
     else
     begin
-      n2.Enabled:=false;
+//      n2.Enabled:=false;
       speedbutton4.Enabled:=false;
     end;
     if x3=true then
     begin
-      n3.Enabled:=true;
+//      n3.Enabled:=true;
       speedbutton3.Enabled:=true;
     end
     else
     begin
-      n3.Enabled:=false;
+//      n3.Enabled:=false;
       speedbutton5.Enabled:=false;
     end;
   end
@@ -92,6 +92,5 @@ begin
     close;
   end;
 
-end;
-
 end.
+

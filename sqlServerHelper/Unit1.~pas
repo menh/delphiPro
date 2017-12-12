@@ -1,0 +1,76 @@
+unit Unit1;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, DB, ADODB, StdCtrls, Menus, ComCtrls;
+
+type
+  TForm1 = class(TForm)
+    btConnectDB: TButton;
+    ADOConnection: TADOConnection;
+    ADOQuery: TADOQuery;
+    selectButton: TButton;
+    Edit1: TEdit;
+    ListView: TListView;
+    procedure btConnectDBClick(Sender: TObject);
+    procedure ADOConnectionAfterConnect(Sender: TObject);
+    procedure selectButtonClick(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  Form1: TForm1;
+
+implementation
+
+{$R *.dfm}
+
+procedure TForm1.btConnectDBClick(Sender: TObject);
+begin
+  with ADOConnection do
+  begin
+    Connected:=False;
+    ConnectionString:='Provider=SQLOLEDB.1;Persist Security Info=False;User ID=sa;Initial Catalog=KSMM_OPT;password =sa;Data Source=192.168.50.176';
+    try
+      ConnectionTimeout:=20;
+      CommandTimeout:=30;
+      Connected:=True;
+    except
+      ShowMessage('not connect');
+      raise;
+      Exit;
+    end;
+    end;
+end;
+
+procedure TForm1.ADOConnectionAfterConnect(Sender: TObject);
+begin
+   showMessage('Connect');
+end;
+
+procedure TForm1.selectButtonClick(Sender: TObject);
+var
+  sqlStmt:string;
+  sqlStmt1:string;
+  columns:integer;
+begin
+  ADOQuery.Close;
+  ADOQuery.SQL.Clear;
+  sqlStmt:='SELECT syscolumns.name,systypes.name,syscolumns.isnullable,syscolumns.length '+
+           'FROM syscolumns, systypes '+
+           'WHERE syscolumns.xusertype = systypes.xusertype '+
+           'AND syscolumns.id = object_id(''USER_LOG'')' ;
+  sqlStmt1:='SELECT BIZ_NO FROM USER_LOG';
+  ADOQuery.SQL.Add(sqlStmt);
+  ADOQuery.Open;
+  columns:=Adoquery.FieldCount;
+  //Edit1.Text:=Adoquery.Fields[0].AsString;
+  Edit1.Text:=IntToStr(columns);
+end;
+
+end.

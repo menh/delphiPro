@@ -1,9 +1,9 @@
-object Form2: TForm2
-  Left = 381
-  Top = 194
+object UpdateForm: TUpdateForm
+  Left = 288
+  Top = 161
   Width = 928
-  Height = 475
-  Caption = 'Form2'
+  Height = 480
+  Caption = 'UpdateForm'
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -15,27 +15,26 @@ object Form2: TForm2
   PixelsPerInch = 96
   TextHeight = 13
   object ValueListEditor: TValueListEditor
-    Left = 232
-    Top = 40
+    Left = 200
+    Top = 32
     Width = 306
     Height = 300
     TabOrder = 0
   end
-  object insertButton: TButton
-    Left = 640
-    Top = 160
+  object Submit: TButton
+    Left = 224
+    Top = 360
     Width = 75
     Height = 25
-    Caption = #25554#20837
+    Caption = #30830#23450
     TabOrder = 1
-    OnClick = insertButtonClick
   end
-  object Edit1: TEdit
-    Left = 168
-    Top = 376
-    Width = 665
-    Height = 21
+  object Cancel: TButton
+    Left = 360
+    Top = 360
+    Width = 89
+    Height = 25
+    Caption = #21462#28040
     TabOrder = 2
-    Text = 'Edit1'
   end
 end

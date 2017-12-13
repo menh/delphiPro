@@ -1,6 +1,6 @@
 object Form1: TForm1
-  Left = 256
-  Top = 221
+  Left = 432
+  Top = 379
   Width = 928
   Height = 479
   Caption = 'Form1'
@@ -14,8 +14,8 @@ object Form1: TForm1
   PixelsPerInch = 96
   TextHeight = 13
   object btConnectDB: TButton
-    Left = 24
-    Top = 8
+    Left = 16
+    Top = 40
     Width = 75
     Height = 25
     Caption = #36830#25509#25968#25454#24211
@@ -23,29 +23,41 @@ object Form1: TForm1
     OnClick = btConnectDBClick
   end
   object selectButton: TButton
-    Left = 24
-    Top = 64
+    Left = 16
+    Top = 128
     Width = 75
     Height = 25
     Caption = #26597#30475
     TabOrder = 1
     OnClick = selectButtonClick
   end
-  object Edit1: TEdit
-    Left = 696
-    Top = 176
+  object TableName: TEdit
+    Left = 168
+    Top = 8
     Width = 145
     Height = 21
     TabOrder = 2
-    Text = 'Edit1'
+    Text = 'USER_LOG'
   end
   object ListView: TListView
-    Left = 232
-    Top = 80
-    Width = 250
-    Height = 150
+    Left = 168
+    Top = 40
+    Width = 800
+    Height = 500
+    Checkboxes = True
     Columns = <>
+    MultiSelect = True
+    RowSelect = True
     TabOrder = 3
+  end
+  object insertButton: TButton
+    Left = 32
+    Top = 224
+    Width = 75
+    Height = 25
+    Caption = #25554#20837#25968#25454
+    TabOrder = 4
+    OnClick = insertButtonClick
   end
   object ADOConnection: TADOConnection
     AfterConnect = ADOConnectionAfterConnect

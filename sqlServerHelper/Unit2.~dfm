@@ -1,8 +1,8 @@
 object Form2: TForm2
-  Left = 233
-  Top = 406
+  Left = 637
+  Top = 235
   Width = 928
-  Height = 480
+  Height = 475
   Caption = 'Form2'
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -28,5 +28,14 @@ object Form2: TForm2
     Height = 25
     Caption = #25554#20837
     TabOrder = 1
+    OnClick = insertButtonClick
+  end
+  object Edit1: TEdit
+    Left = 168
+    Top = 376
+    Width = 665
+    Height = 21
+    TabOrder = 2
+    Text = 'Edit1'
   end
 end

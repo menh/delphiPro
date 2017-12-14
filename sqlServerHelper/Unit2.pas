@@ -19,10 +19,7 @@ type
     { Public declarations }
   end;
 type
-  TValueListEditorAccess = class(TValueListEditor)
-  procedure ValueListEditor1DrawCell(Sender: TObject; ACol,
-    ARow: Integer; Rect: TRect; State: TGridDrawState);
-end;
+  TValueListEditorAccess = class(TValueListEditor);
 var
   Form2: TForm2;
 
@@ -30,16 +27,19 @@ implementation
 Uses Unit1;
 {$R *.dfm}
 
-
+ procedure ValueListEditorDrawCell(Sender: TObject; ACol,ARow: Integer);
+begin
+  TValueListEditorAccess(Sender).OnDrawCell := nil;
+  //if (ACol = 0) and (ARow > 0) then
+    TValueListEditorAccess(Sender).Canvas.Brush.Color := clred;
+end;
 procedure TForm2.FormShow(Sender: TObject);
 var
   sqlStmt:string;
  // sqlStmt1:string;
-  columns:integer;
   key:string;
-  rows:integer;
   i:integer;
-  j:integer;
+  rows:integer;
   VE:TValueListEditor;
   sTableName:string;
 begin
@@ -57,6 +57,7 @@ begin
   rows:=Form1.Adoquery.RecordCount;
   for i:=0 to rows-1 do
   begin
+    ValueListEditorDrawCell(Sender,0,0);
     key:=Form1.Adoquery.Fields[0].AsString;
     Form2.ValueListEditor.InsertRow(key,'',true);
    // Form2.ValueListEditor.ItemProps[i].PickList.
@@ -102,16 +103,6 @@ begin
 end;
 
 
-procedure ValueListEditor1DrawCell(Sender: TObject; ACol,
-  ARow: Integer; Rect: TRect; State: TGridDrawState);
-begin
-  TValueListEditorAccess(Sender).OnDrawCell := nil;
-  if (ACol = 0) and (ARow > 0) then
-    TValueListEditorAccess(Sender).Canvas.Brush.Color := $00C0DCC0;
-  if (ACol = 1) and (ARow > 0) then
-    TValueListEditorAccess(Sender).Canvas.Font.Color := clRed;
-  TValueListEditorAccess(Sender).DrawCell(ACol, ARow, Rect, State);
-  //TValueListEditorAccess(Sender).OnDrawCell := ValueListEditorDrawCell;
-end;
+
 end.
 

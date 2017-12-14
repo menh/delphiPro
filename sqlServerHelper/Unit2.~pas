@@ -18,7 +18,11 @@ type
   public
     { Public declarations }
   end;
-
+type
+  TValueListEditorAccess = class(TValueListEditor)
+  procedure ValueListEditor1DrawCell(Sender: TObject; ACol,
+    ARow: Integer; Rect: TRect; State: TGridDrawState);
+end;
 var
   Form2: TForm2;
 
@@ -97,4 +101,17 @@ begin
   Edit1.Text:=sSqlStmt1;
 end;
 
+
+procedure ValueListEditor1DrawCell(Sender: TObject; ACol,
+  ARow: Integer; Rect: TRect; State: TGridDrawState);
+begin
+  TValueListEditorAccess(Sender).OnDrawCell := nil;
+  if (ACol = 0) and (ARow > 0) then
+    TValueListEditorAccess(Sender).Canvas.Brush.Color := $00C0DCC0;
+  if (ACol = 1) and (ARow > 0) then
+    TValueListEditorAccess(Sender).Canvas.Font.Color := clRed;
+  TValueListEditorAccess(Sender).DrawCell(ACol, ARow, Rect, State);
+  //TValueListEditorAccess(Sender).OnDrawCell := ValueListEditorDrawCell;
+end;
 end.
+

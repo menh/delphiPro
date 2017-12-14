@@ -16,6 +16,7 @@ type
     ListView: TListView;
     insertButton: TButton;
     UpdateButton: TButton;
+    StatusBar1: TStatusBar;
     procedure ADOConnectionAfterConnect(Sender: TObject);
     procedure selectButtonClick(Sender: TObject);
     procedure insertButtonClick(Sender: TObject);

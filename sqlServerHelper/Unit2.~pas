@@ -11,6 +11,7 @@ type
     ValueListEditor: TValueListEditor;
     insertButton: TButton;
     Edit1: TEdit;
+    Button1: TButton;
     procedure FormShow(Sender: TObject);
     procedure insertButtonClick(Sender: TObject);
   private

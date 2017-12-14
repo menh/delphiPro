@@ -15,10 +15,14 @@ type
     TableName: TEdit;
     ListView: TListView;
     insertButton: TButton;
+    UpdateButton: TButton;
+    StatusBar1: TStatusBar;
     procedure ADOConnectionAfterConnect(Sender: TObject);
     procedure selectButtonClick(Sender: TObject);
     procedure insertButtonClick(Sender: TObject);
     procedure btConnectDBClick(Sender: TObject);
+    procedure ListViewDblClick(Sender: TObject);
+    procedure UpdateButtonClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -30,7 +34,7 @@ var
 
 implementation
 
-uses Unit2;
+uses Unit2, Update;
 
 {$R *.dfm}
 
@@ -117,6 +121,14 @@ begin
       Exit;
     end;
     end;
+end;
+procedure TForm1.ListViewDblClick(Sender: TObject);
+begin
+  showMessage('Connect');
+end;
+procedure TForm1.UpdateButtonClick(Sender: TObject);
+begin
+  UpdateForm.show;
 end;
 
 end.

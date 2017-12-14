@@ -8,7 +8,7 @@ uses
 
 type
   TUpdateForm = class(TForm)
-    ValueListEditor1: TValueListEditor;
+    ValueListEditor: TValueListEditor;
     Submit: TButton;
     Cancel: TButton;
     procedure FormShow(Sender: TObject);

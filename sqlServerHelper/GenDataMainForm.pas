@@ -19,6 +19,9 @@ type
     ITF_SH_ZJHZ: TButton;
     ITF_SH_ZQYE: TButton;
     procedure ITF_SH_GHClick(Sender: TObject);
+    procedure ITF_SH_JSMXClick(Sender: TObject);
+    procedure ITF_SH_ZJHZClick(Sender: TObject);
+    procedure ITF_SH_ZQYEClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -35,9 +38,9 @@ type
    end;
 type
   ITF_SH_GHData=record
-    iTRD_DATE:integer;
-    iITF_CFG_SN:integer;
-    iREC_SN:integer;
+    sTRD_DATE:string;
+    sITF_CFG_SN:string;
+    sREC_SN:string;
     sGDDM:string;
     sGDXM:string;
     sBCRQ:string;
@@ -56,9 +59,9 @@ type
    end;
 type
   ITF_SH_JSMXData=record
-    iTRD_DATE:integer;
-    iITF_CFG_SH:integer;
-    iREC_SN:integer;
+    sTRD_DATE:string;
+    sITF_CFG_SH:string;
+    sREC_SN:string;
     sSCDM:string;
     sJLLX:string;
     sJYFS:string;
@@ -110,9 +113,9 @@ type
   end;
 type
   ITF_SH_ZJHZData=record
-    iTRD_DATE:integer;
-    iITF_CFG_SN:integer;
-    iREC_SN:integer;
+    sTRD_DATE:string;
+    sITF_CFG_SN:string;
+    sREC_SN:string;
     sSCDM:string;
     sJLLX:string;
     sJSFS:string;
@@ -140,9 +143,9 @@ type
   end;
 type
   ITF_SH_ZQYEData=record
-    iTRD_DATE:integer;
-    iITF_CFG_SN:integer;
-    iREC_SN:integer;
+    sTRD_DATE:string;
+    sITF_CFG_SN:string;
+    sREC_SN:string;
     sSCDM:string;
     sQSBH:string;
     sZQZH:string;
@@ -159,9 +162,9 @@ type
   end;
 procedure InitRBaseData;
 procedure InitRITF_SH_GHData;
-procedure InitRITF_SH_JSMX;
-procedure InitRITF_SH_ZJHZ;
-procedure InitRITF_SH_ZQYE;
+procedure InitRITF_SH_JSMXData;
+procedure InitRITF_SH_ZJHZData;
+procedure InitRITF_SH_ZQYEData;
 var
   GenData: TGenData;
   RBaseData:BaseData;
@@ -172,7 +175,9 @@ var
 
 
 implementation
-uses unit1;
+
+uses Unit1;
+
 {$R *.dfm}
 procedure InitRBaseData;
 begin
@@ -185,12 +190,12 @@ begin
 end;
 procedure InitRITF_SH_GHData;
 begin
-  RITF_SH_GHData.iTRD_DATE:=strtoint(FormatDateTime('yyyymmdd',now()));
-  RITF_SH_GHData.iITF_CFG_SN:=2012;
-  RITF_SH_GHData.iREC_SN:=1;
+  RITF_SH_GHData.sTRD_DATE:=FormatDateTime('yyyymmdd',now());
+  RITF_SH_GHData.sITF_CFG_SN:='2012';
+  RITF_SH_GHData.sREC_SN:='1';
   RITF_SH_GHData.sGDDM:=RBaseData.sZQZH;
-  RITF_SH_GHData.sGDXM:='';
-  RITF_SH_GHData.sBCRQ:=inttostr(RITF_SH_GHData.iTRD_DATE);
+  RITF_SH_GHData.sGDXM:=' ';
+  RITF_SH_GHData.sBCRQ:=RITF_SH_GHData.sTRD_DATE;
   RITF_SH_GHData.sCJBH:='0000000';
   RITF_SH_GHData.sGSDM:=RBaseData.sJYDY;
   RITF_SH_GHData.sCJSL:=RBaseData.sCJSL;
@@ -202,13 +207,13 @@ begin
   RITF_SH_GHData.sCJJE:=floattostr(strtofloat(RITF_SH_GHData.sCJSL)*strtofloat(RITF_SH_GHData.sCJJG));
   RITF_SH_GHData.sSQBH:='LSH'+'111111';
   RITF_SH_GHData.sBS  :='B';
-  RITF_SH_GHData.sMJBH:='';
+  RITF_SH_GHData.sMJBH:=' ';
 end;
-procedure InitRITF_SH_JSMX;
+procedure InitRITF_SH_JSMXData;
 begin
-  RITF_SH_JSMXData.iTRD_DATE:=RITF_SH_GHData.iTRD_DATE;
-  RITF_SH_JSMXData.iITF_CFG_SH:=2101;
-  RITF_SH_JSMXData.iREC_SN:=1;
+  RITF_SH_JSMXData.sTRD_DATE:=RITF_SH_GHData.sTRD_DATE;
+  RITF_SH_JSMXData.sITF_CFG_SH:='2101';
+  RITF_SH_JSMXData.sREC_SN:='1';
   RITF_SH_JSMXData.sSCDM:='01';
   RITF_SH_JSMXData.sJLLX:='001';
   RITF_SH_JSMXData.sJYFS:='001';
@@ -220,7 +225,7 @@ begin
   RITF_SH_JSMXData.sCJBH:=RITF_SH_GHData.sCJBH;
   RITF_SH_JSMXData.sSQBH:=RITF_SH_GHData.sSQBH;
   RITF_SH_JSMXData.sWTBH:='';
-  RITF_SH_JSMXData.sJYRQ:=inttostr(RITF_SH_JSMXData.iTRD_DATE);
+  RITF_SH_JSMXData.sJYRQ:=RITF_SH_JSMXData.sTRD_DATE;
   RITF_SH_JSMXData.sQSRQ:=RITF_SH_JSMXData.sJYRQ;
   RITF_SH_JSMXData.sJSRQ:='next trd date';
   RITF_SH_JSMXData.sQTRQ:='0';
@@ -258,45 +263,16 @@ begin
   RITF_SH_JSMXData.sJGDM:='0000';
   RITF_SH_JSMXData.sFJSM:='Ａ股交易清算';
 end;
-procedure TGenData.ITF_SH_GHClick(Sender: TObject);
-var
-  sqlStmt:string;
+procedure InitRITF_SH_ZJHZData;
 begin
-  InitRITF_SH_GHData;
-  sqlStmt:='INSERT INTO  ITF_SH_GH VALUES('
-
-  sqlStmt:=sqlStmt+''''+ RITF_SH_GHData.iTRD_DATE + '''';
-  sqlStmt:=sqlStmt+''''+ RITF_SH_GHData.iITF_CFG_SN+'''';
-  sqlStmt:=sqlStmt+''''+ RITF_SH_GHData.iREC_SN+'''';
-  sqlStmt:=sqlStmt+''''+ RITF_SH_GHData.sGDDM+'''';
-  sqlStmt:=sqlStmt+''''+ RITF_SH_GHData.sGDXM+'''';
-
-  sqlStmt:=sqlStmt+''''+ RITF_SH_GHData.sBCRQ+'''';
-  sqlStmt:=sqlStmt+''''+ RITF_SH_GHData.sCJBH+'''';
-  sqlStmt:=sqlStmt+''''+ RITF_SH_GHData.sGSDM+'''';
-  sqlStmt:=sqlStmt+''''+ RITF_SH_GHData.sCJSL+'''';
-  sqlStmt:=sqlStmt+''''+ RITF_SH_GHData.sBCYE+'''';
-
-  sqlStmt:=sqlStmt+''''+ RITF_SH_GHData.sZQDM+'''';
-  sqlStmt:=sqlStmt+''''+ RITF_SH_GHData.sSBSJ+'''';
-  sqlStmt:=sqlStmt+''''+ RITF_SH_GHData.sCJSJ+'''';
-  sqlStmt:=sqlStmt+''''+ RITF_SH_GHData.sCJJG+'''';
-  sqlStmt:=sqlStmt+''''+ RITF_SH_GHData.sCJJE+'''';
-
-  sqlStmt:=sqlStmt+''''+ RITF_SH_GHData.sSQBH+'''';
-  sqlStmt:=sqlStmt+''''+ RITF_SH_GHData.sBS+'''';
-  sqlStmt:=sqlStmt+''''+ RITF_SH_GHData.sMJBH+'''';
-end;
-procedure InitRITF_SH_ZJHZ;
-begin
-  RITF_SH_ZJHZData.iTRD_DATE:=strtoint(FormatDateTime('yyyymmdd',now()));
-  RITF_SH_ZJHZData.iITF_CFG_SN:=2121;
-  RITF_SH_ZJHZData.iREC_SN:=1;
+  RITF_SH_ZJHZData.sTRD_DATE:=FormatDateTime('yyyymmdd',now());
+  RITF_SH_ZJHZData.sITF_CFG_SN:='2121';
+  RITF_SH_ZJHZData.sREC_SN:='1';
   RITF_SH_ZJHZData.sSCDM:='01';
   RITF_SH_ZJHZData.sJLLX:='001';
 
   RITF_SH_ZJHZData.sJSFS:='001';
-  RITF_SH_ZJHZData.sQSRQ:=inttostr(RITF_SH_ZJHZData.iTRD_DATE);
+  RITF_SH_ZJHZData.sQSRQ:=RITF_SH_ZJHZData.sTRD_DATE;
   RITF_SH_ZJHZData.sJSRQ:='next trd date';
   RITF_SH_ZJHZData.sXWH:=RBaseData.sJYDY;
   RITF_SH_ZJHZData.sQSBH:='JS509';
@@ -318,15 +294,15 @@ begin
   RITF_SH_ZJHZData.sQTFY3:='0.00';
   RITF_SH_ZJHZData.sSJSF:='SJSF汇总';
   RITF_SH_ZJHZData.sQSBZ:='060';
-  
+
   RITF_SH_ZJHZData.sYYRQ:='0';
   RITF_SH_ZJHZData.sBCSM:='A股交易清算';
 end;
-procedure InitRITF_SH_ZQYE;
+procedure InitRITF_SH_ZQYEData;
 begin
-  RITF_SH_ZQYEData.iTRD_DATE:=strtoint(FormatDateTime('yyyymmdd',now()));
-  RITF_SH_ZQYEData.iITF_CFG_SN:=2116;
-  RITF_SH_ZQYEData.iREC_SN:=1;
+  RITF_SH_ZQYEData.sTRD_DATE:=FormatDateTime('yyyymmdd',now());
+  RITF_SH_ZQYEData.sITF_CFG_SN:='2116';
+  RITF_SH_ZQYEData.sREC_SN:='1';
   RITF_SH_ZQYEData.sSCDM:='01';
   RITF_SH_ZQYEData.sQSBH:='JS509';
   RITF_SH_ZQYEData.sZQZH:=RBaseData.sZQZH;;
@@ -341,4 +317,183 @@ begin
   RITF_SH_ZQYEData.sBY_01:='';
   RITF_SH_ZQYEData.sJZRQ:=FormatDateTime('yyyymmdd',now());
 end;
+
+procedure exectSqlStmt(sqlStmt:string);
+begin
+  Form1.ADOQuery.SQL.Clear;
+ // Form1.ADOQuery.SQL.Add(sqlStmt);
+ // Form1.ADOQuery.ExecSQL;
+ // Form1.ADOQuery.Close;
+end;
+
+procedure TGenData.ITF_SH_GHClick(Sender: TObject);
+var
+  sqlStmt:string;
+begin
+  InitRITF_SH_GHData;
+  sqlStmt:='INSERT INTO ITF_SH_GH VALUES(';
+
+  sqlStmt:=sqlStmt+' '''+ RITF_SH_GHData.sTRD_DATE+''' ';
+  sqlStmt:=sqlStmt+''''+ RITF_SH_GHData.sITF_CFG_SN+'''';
+  sqlStmt:=sqlStmt+''''+ RITF_SH_GHData.sREC_SN+'''';
+  sqlStmt:=sqlStmt+''''+ RITF_SH_GHData.sGDDM+'''';
+  sqlStmt:=sqlStmt+''''+ RITF_SH_GHData.sGDXM+'''';
+
+  sqlStmt:=sqlStmt+''''+ RITF_SH_GHData.sBCRQ+'''';
+  sqlStmt:=sqlStmt+''''+ RITF_SH_GHData.sCJBH+'''';
+  sqlStmt:=sqlStmt+''''+ RITF_SH_GHData.sGSDM+'''';
+  sqlStmt:=sqlStmt+''''+ RITF_SH_GHData.sCJSL+'''';
+  sqlStmt:=sqlStmt+''''+ RITF_SH_GHData.sBCYE+'''';
+
+  sqlStmt:=sqlStmt+''''+ RITF_SH_GHData.sZQDM+'''';
+  sqlStmt:=sqlStmt+''''+ RITF_SH_GHData.sSBSJ+'''';
+  sqlStmt:=sqlStmt+''''+ RITF_SH_GHData.sCJSJ+'''';
+  sqlStmt:=sqlStmt+''''+ RITF_SH_GHData.sCJJG+'''';
+  sqlStmt:=sqlStmt+''''+ RITF_SH_GHData.sCJJE+'''';
+
+  sqlStmt:=sqlStmt+''''+ RITF_SH_GHData.sSQBH+'''';
+  sqlStmt:=sqlStmt+''''+ RITF_SH_GHData.sBS+'''';
+  sqlStmt:=sqlStmt+''''+ RITF_SH_GHData.sMJBH+'''';
+  sqlStmt:=')';
+  exectSqlStmt(sqlStmt);
+end;
+
+procedure TGenData.ITF_SH_JSMXClick(Sender: TObject);
+var
+  sqlStmt:string;
+begin
+   InitRITF_SH_JSMXData;
+   sqlStmt:='INSERT INTO ITF_SH_JSMX VALUES(';
+   sqlStmt:=''''+RITF_SH_JSMXData.sTRD_DATE+'''';
+   sqlStmt:=''''+RITF_SH_JSMXData.sITF_CFG_SH+'''';
+   sqlStmt:=''''+RITF_SH_JSMXData.sREC_SN+'''';
+   sqlStmt:=''''+RITF_SH_JSMXData.sSCDM+'''';
+   sqlStmt:=''''+RITF_SH_JSMXData.sJLLX+'''';
+   sqlStmt:=''''+RITF_SH_JSMXData.sJYFS+'''';
+   sqlStmt:=''''+RITF_SH_JSMXData.sJSFS+'''';
+   sqlStmt:=''''+RITF_SH_JSMXData.sYWLX+'''';
+   sqlStmt:=''''+RITF_SH_JSMXData.sQSBZ+'''';
+   sqlStmt:=''''+RITF_SH_JSMXData.sBDLX+'''';
+   sqlStmt:=''''+RITF_SH_JSMXData.sQSLSH+'''';
+   sqlStmt:=''''+RITF_SH_JSMXData.sCJBH+'''';
+   sqlStmt:=''''+RITF_SH_JSMXData.sSQBH+'''';
+   sqlStmt:=''''+RITF_SH_JSMXData.sWTBH+'''';
+   sqlStmt:=''''+RITF_SH_JSMXData.sJYRQ+'''';
+   sqlStmt:=''''+RITF_SH_JSMXData.sQSRQ+'''';
+   sqlStmt:=''''+RITF_SH_JSMXData.sJSRQ+'''';
+   sqlStmt:=''''+RITF_SH_JSMXData.sQTRQ+'''';
+   sqlStmt:=''''+RITF_SH_JSMXData.sWTSJ+'''';
+   sqlStmt:=''''+RITF_SH_JSMXData.sCJSJ+'''';
+   sqlStmt:=''''+RITF_SH_JSMXData.sXWH1+'''';
+   sqlStmt:=''''+RITF_SH_JSMXData.sXWH2+'''';
+   sqlStmt:=''''+RITF_SH_JSMXData.sXWHY+'''';
+   sqlStmt:=''''+RITF_SH_JSMXData.sJSHY+'''';
+   sqlStmt:=''''+RITF_SH_JSMXData.sTGHY+'''';
+   sqlStmt:=''''+RITF_SH_JSMXData.sZQZH+'''';
+   sqlStmt:=''''+RITF_SH_JSMXData.sZQDM1+'''';
+   sqlStmt:=''''+RITF_SH_JSMXData.sSQDM2+'''';
+   sqlStmt:=''''+RITF_SH_JSMXData.sZQLB+'''';
+   sqlStmt:=''''+RITF_SH_JSMXData.sLTLX+'''';
+   sqlStmt:=''''+RITF_SH_JSMXData.sQYLB+'''';
+   sqlStmt:=''''+RITF_SH_JSMXData.sGPNF+'''';
+   sqlStmt:=''''+RITF_SH_JSMXData.sMMBZ+'''';
+   sqlStmt:=''''+RITF_SH_JSMXData.sSL+'''';
+   sqlStmt:=''''+RITF_SH_JSMXData.sCJSL+'''';
+   sqlStmt:=''''+RITF_SH_JSMXData.sZJZH+'''';
+   sqlStmt:=''''+RITF_SH_JSMXData.sBZ+'''';
+   sqlStmt:=''''+RITF_SH_JSMXData.sJG1+'''';
+   sqlStmt:=''''+RITF_SH_JSMXData.sJG2+'''';
+   sqlStmt:=''''+RITF_SH_JSMXData.sQSJE+'''';
+   sqlStmt:=''''+RITF_SH_JSMXData.sYHS+'''';
+   sqlStmt:=''''+RITF_SH_JSMXData.sJSF+'''';
+   sqlStmt:=''''+RITF_SH_JSMXData.sGHF+'''';
+   sqlStmt:=''''+RITF_SH_JSMXData.sZGF+'''';
+   sqlStmt:=''''+RITF_SH_JSMXData.sSXF+'''';
+   sqlStmt:=''''+RITF_SH_JSMXData.sQTJE1+'''';
+   sqlStmt:=''''+RITF_SH_JSMXData.sQTJE2+'''';
+   sqlStmt:=''''+RITF_SH_JSMXData.sQTJE3+'''';
+   sqlStmt:=''''+RITF_SH_JSMXData.sSJSF+'''';
+   sqlStmt:=''''+RITF_SH_JSMXData.sJGDM+'''';
+   sqlStmt:=''''+RITF_SH_JSMXData.sFJSM+'''';
+   sqlStmt:=')';
+   exectSqlStmt(sqlStmt);
+end;
+
+procedure TGenData.ITF_SH_ZJHZClick(Sender: TObject);
+var
+  sqlStmt:string;
+begin
+  InitRITF_SH_ZJHZData;
+
+  sqlStmt:='INSERT INTO ITF_SH_ZJHZ VALUES(';
+
+  sqlStmt:=''''+RITF_SH_ZJHZData.sTRD_DATE+'''';
+  sqlStmt:=''''+RITF_SH_ZJHZData.sITF_CFG_SN+'''';
+  sqlStmt:=''''+RITF_SH_ZJHZData.sREC_SN+'''';
+  sqlStmt:=''''+RITF_SH_ZJHZData.sSCDM+'''';
+  sqlStmt:=''''+RITF_SH_ZJHZData.sJLLX+'''';
+
+  sqlStmt:=''''+RITF_SH_ZJHZData.sJSFS+'''';
+  sqlStmt:=''''+RITF_SH_ZJHZData.sQSRQ+'''';
+  sqlStmt:=''''+RITF_SH_ZJHZData.sJSRQ+'''';
+  sqlStmt:=''''+RITF_SH_ZJHZData.sXWH+'''';
+  sqlStmt:=''''+RITF_SH_ZJHZData.sQSBH+'''';
+
+  sqlStmt:=''''+RITF_SH_ZJHZData.sZJZH+'''';
+  sqlStmt:=''''+RITF_SH_ZJHZData.sYHDM+'''';
+  sqlStmt:=''''+RITF_SH_ZJHZData.sSJMJE+'''';
+  sqlStmt:=''''+RITF_SH_ZJHZData.sBJMJE+'''';
+  sqlStmt:=''''+RITF_SH_ZJHZData.sQSJE+'''';
+
+  sqlStmt:=''''+RITF_SH_ZJHZData.sYHS+'''';
+  sqlStmt:=''''+RITF_SH_ZJHZData.sJSF+'''';
+  sqlStmt:=''''+RITF_SH_ZJHZData.sGHF+'''';
+  sqlStmt:=''''+RITF_SH_ZJHZData.sZGF+'''';
+  sqlStmt:=''''+RITF_SH_ZJHZData.sSXF+'''';
+
+  sqlStmt:=''''+RITF_SH_ZJHZData.sQTFY1+'''';
+  sqlStmt:=''''+RITF_SH_ZJHZData.sQTFY2+'''';
+  sqlStmt:=''''+RITF_SH_ZJHZData.sQTFY3+'''';
+  sqlStmt:=''''+RITF_SH_ZJHZData.sSJSF+'''';
+  sqlStmt:=''''+RITF_SH_ZJHZData.sQSBZ+'''';
+
+  sqlStmt:=''''+RITF_SH_ZJHZData.sYYRQ+'''';
+  sqlStmt:=''''+RITF_SH_ZJHZData.sBCSM+'''';
+
+  sqlStmt:=sqlStmt+')';
+  exectSqlStmt(sqlStmt);
+end;
+
+procedure TGenData.ITF_SH_ZQYEClick(Sender: TObject);
+var
+  sqlStmt:String;
+begin
+  InitRITF_SH_ZQYEData;
+
+  sqlStmt:='INSERT INTO ITF_SH_ZQYE VALUES(';
+
+  sqlStmt:=''''+RITF_SH_ZQYEData.sTRD_DATE+'''';
+  sqlStmt:=''''+RITF_SH_ZQYEData.sITF_CFG_SN+'''';
+  sqlStmt:=''''+RITF_SH_ZQYEData.sREC_SN+'''';
+  sqlStmt:=''''+RITF_SH_ZQYEData.sSCDM+'''';
+  sqlStmt:=''''+RITF_SH_ZQYEData.sQSBH+'''';
+
+  sqlStmt:=''''+RITF_SH_ZQYEData.sZQZH+'''';
+  sqlStmt:=''''+RITF_SH_ZQYEData.sXWH+'''';
+  sqlStmt:=''''+RITF_SH_ZQYEData.sZQDM+'''';
+  sqlStmt:=''''+RITF_SH_ZQYEData.sZQLB+'''';
+  sqlStmt:=''''+RITF_SH_ZQYEData.sLTLX+'''';
+
+  sqlStmt:=''''+RITF_SH_ZQYEData.sQYLB+'''';
+  sqlStmt:=''''+RITF_SH_ZQYEData.sGPNF+'''';
+  sqlStmt:=''''+RITF_SH_ZQYEData.sYE1+'''';
+  sqlStmt:=''''+RITF_SH_ZQYEData.sYE2+'''';
+  sqlStmt:=''''+RITF_SH_ZQYEData.sBY_01+'''';
+
+  sqlStmt:=''''+RITF_SH_ZQYEData.sJZRQ+'''';
+
+  sqlStmt:=sqlStmt+')';
+  exectSqlStmt(sqlStmt);
+end;
+
 end.

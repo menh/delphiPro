@@ -4,7 +4,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, ExtCtrls;
+  Dialogs, StdCtrls, ExtCtrls, DB, Grids, DBGrids, ADODB;
 
 type
   TGenData = class(TForm)
@@ -18,10 +18,17 @@ type
     ITF_SH_JSMX: TButton;
     ITF_SH_ZJHZ: TButton;
     ITF_SH_ZQYE: TButton;
+    Edit1: TEdit;
+    ADOConnection: TADOConnection;
+    ADOQuery: TADOQuery;
+    DBGrid: TDBGrid;
+    DataSource: TDataSource;
+    connectButton: TButton;
     procedure ITF_SH_GHClick(Sender: TObject);
     procedure ITF_SH_JSMXClick(Sender: TObject);
     procedure ITF_SH_ZJHZClick(Sender: TObject);
     procedure ITF_SH_ZQYEClick(Sender: TObject);
+    procedure connectButtonClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -204,7 +211,7 @@ begin
   RITF_SH_GHData.sSBSJ:='102810';
   RITF_SH_GHData.sCJSJ:='112810';
   RITF_SH_GHData.sCJJG:=RBaseData.sCJJG;
-  RITF_SH_GHData.sCJJE:=floattostr(strtofloat(RITF_SH_GHData.sCJSL)*strtofloat(RITF_SH_GHData.sCJJG));
+  RITF_SH_GHData.sCJJE:='  ';//floattostr(strtofloat(RITF_SH_GHData.sCJSL)*strtofloat(RITF_SH_GHData.sCJJG));
   RITF_SH_GHData.sSQBH:='LSH'+'111111';
   RITF_SH_GHData.sBS  :='B';
   RITF_SH_GHData.sMJBH:=' ';
@@ -250,12 +257,12 @@ begin
   RITF_SH_JSMXData.sBZ:='RMB';
   RITF_SH_JSMXData.sJG1:=RBaseData.sCJJG;
   RITF_SH_JSMXData.sJG2:=RBaseData.sCJJG;
-  RITF_SH_JSMXData.sQSJE:='-'+floattostr(strtofloat(RBaseData.sCJSL)*strtofloat(RBaseData.sCJJG));
-  RITF_SH_JSMXData.sYHS:=floattostr(strtofloat(RBaseData.sCJSL)*strtofloat(RBaseData.sCJJG)/1000*0);
-  RITF_SH_JSMXData.sJSF:=floattostr(strtofloat(RBaseData.sCJSL)*strtofloat(RBaseData.sCJJG)/1000*0);
-  RITF_SH_JSMXData.sGHF:=floattostr(strtofloat(RBaseData.sCJSL)*strtofloat(RBaseData.sCJJG)/1000*0);
-  RITF_SH_JSMXData.sZGF:=floattostr(strtofloat(RBaseData.sCJSL)*strtofloat(RBaseData.sCJJG)/1000*0);
-  RITF_SH_JSMXData.sSXF:=floattostr(strtofloat(RBaseData.sCJSL)*strtofloat(RBaseData.sCJJG)/1000*0);
+  RITF_SH_JSMXData.sQSJE:='-'+' ';//floattostr(strtofloat(RBaseData.sCJSL)*strtofloat(RBaseData.sCJJG));
+  RITF_SH_JSMXData.sYHS:=' ';//floattostr(strtofloat(RBaseData.sCJSL)*strtofloat(RBaseData.sCJJG)/1000*0);
+  RITF_SH_JSMXData.sJSF:=' ';//floattostr(strtofloat(RBaseData.sCJSL)*strtofloat(RBaseData.sCJJG)/1000*0);
+  RITF_SH_JSMXData.sGHF:=' ';//floattostr(strtofloat(RBaseData.sCJSL)*strtofloat(RBaseData.sCJJG)/1000*0);
+  RITF_SH_JSMXData.sZGF:=' ';//floattostr(strtofloat(RBaseData.sCJSL)*strtofloat(RBaseData.sCJJG)/1000*0);
+  RITF_SH_JSMXData.sSXF:=' ';//floattostr(strtofloat(RBaseData.sCJSL)*strtofloat(RBaseData.sCJJG)/1000*0);
   RITF_SH_JSMXData.sQTJE1:='0.00';
   RITF_SH_JSMXData.sQTJE2:='0.00';
   RITF_SH_JSMXData.sQTJE3:='0.00';
@@ -320,10 +327,11 @@ end;
 
 procedure exectSqlStmt(sqlStmt:string);
 begin
-  Form1.ADOQuery.SQL.Clear;
- // Form1.ADOQuery.SQL.Add(sqlStmt);
- // Form1.ADOQuery.ExecSQL;
- // Form1.ADOQuery.Close;
+  GenData.Edit1.text:=sqlStmt;
+  //Form1.ADOQuery.SQL.Clear;
+  //Form1.ADOQuery.SQL.Add(sqlStmt);
+  //Form1.ADOQuery.ExecSQL;
+  //Form1.ADOQuery.Close;
 end;
 
 procedure TGenData.ITF_SH_GHClick(Sender: TObject);
@@ -333,28 +341,27 @@ begin
   InitRITF_SH_GHData;
   sqlStmt:='INSERT INTO ITF_SH_GH VALUES(';
 
-  sqlStmt:=sqlStmt+' '''+ RITF_SH_GHData.sTRD_DATE+''' ';
-  sqlStmt:=sqlStmt+''''+ RITF_SH_GHData.sITF_CFG_SN+'''';
-  sqlStmt:=sqlStmt+''''+ RITF_SH_GHData.sREC_SN+'''';
-  sqlStmt:=sqlStmt+''''+ RITF_SH_GHData.sGDDM+'''';
-  sqlStmt:=sqlStmt+''''+ RITF_SH_GHData.sGDXM+'''';
+  sqlStmt:=sqlStmt+''''+ RITF_SH_GHData.sTRD_DATE+''''+',';
+  sqlStmt:=sqlStmt+''''+ RITF_SH_GHData.sITF_CFG_SN+''''+',';
+  sqlStmt:=sqlStmt+''''+ RITF_SH_GHData.sREC_SN+''''+',';
+  sqlStmt:=sqlStmt+''''+ RITF_SH_GHData.sGDDM+''''+',';
+  sqlStmt:=sqlStmt+''''+ RITF_SH_GHData.sGDXM+''''+',';
 
-  sqlStmt:=sqlStmt+''''+ RITF_SH_GHData.sBCRQ+'''';
-  sqlStmt:=sqlStmt+''''+ RITF_SH_GHData.sCJBH+'''';
-  sqlStmt:=sqlStmt+''''+ RITF_SH_GHData.sGSDM+'''';
-  sqlStmt:=sqlStmt+''''+ RITF_SH_GHData.sCJSL+'''';
-  sqlStmt:=sqlStmt+''''+ RITF_SH_GHData.sBCYE+'''';
+  sqlStmt:=sqlStmt+''''+ RITF_SH_GHData.sBCRQ+''''+',';
+  sqlStmt:=sqlStmt+''''+ RITF_SH_GHData.sCJBH+''''+',';
+  sqlStmt:=sqlStmt+''''+ RITF_SH_GHData.sGSDM+''''+',';
+  sqlStmt:=sqlStmt+''''+ RITF_SH_GHData.sCJSL+''''+',';
+  sqlStmt:=sqlStmt+''''+ RITF_SH_GHData.sBCYE+''''+',';
 
-  sqlStmt:=sqlStmt+''''+ RITF_SH_GHData.sZQDM+'''';
-  sqlStmt:=sqlStmt+''''+ RITF_SH_GHData.sSBSJ+'''';
-  sqlStmt:=sqlStmt+''''+ RITF_SH_GHData.sCJSJ+'''';
-  sqlStmt:=sqlStmt+''''+ RITF_SH_GHData.sCJJG+'''';
-  sqlStmt:=sqlStmt+''''+ RITF_SH_GHData.sCJJE+'''';
+  sqlStmt:=sqlStmt+''''+ RITF_SH_GHData.sZQDM+''''+',';
+  sqlStmt:=sqlStmt+''''+ RITF_SH_GHData.sSBSJ+''''+',';
+  sqlStmt:=sqlStmt+''''+ RITF_SH_GHData.sCJSJ+''''+',';
+  sqlStmt:=sqlStmt+''''+ RITF_SH_GHData.sCJJG+''''+',';
+  sqlStmt:=sqlStmt+''''+ RITF_SH_GHData.sCJJE+''''+',';
 
-  sqlStmt:=sqlStmt+''''+ RITF_SH_GHData.sSQBH+'''';
-  sqlStmt:=sqlStmt+''''+ RITF_SH_GHData.sBS+'''';
-  sqlStmt:=sqlStmt+''''+ RITF_SH_GHData.sMJBH+'''';
-  sqlStmt:=')';
+  sqlStmt:=sqlStmt+''''+ RITF_SH_GHData.sSQBH+''''+',';
+  sqlStmt:=sqlStmt+''''+ RITF_SH_GHData.sBS+''''+',';
+  sqlStmt:=sqlStmt+''''+ RITF_SH_GHData.sMJBH+''''+')';
   exectSqlStmt(sqlStmt);
 end;
 
@@ -364,58 +371,57 @@ var
 begin
    InitRITF_SH_JSMXData;
    sqlStmt:='INSERT INTO ITF_SH_JSMX VALUES(';
-   sqlStmt:=''''+RITF_SH_JSMXData.sTRD_DATE+'''';
-   sqlStmt:=''''+RITF_SH_JSMXData.sITF_CFG_SH+'''';
-   sqlStmt:=''''+RITF_SH_JSMXData.sREC_SN+'''';
-   sqlStmt:=''''+RITF_SH_JSMXData.sSCDM+'''';
-   sqlStmt:=''''+RITF_SH_JSMXData.sJLLX+'''';
-   sqlStmt:=''''+RITF_SH_JSMXData.sJYFS+'''';
-   sqlStmt:=''''+RITF_SH_JSMXData.sJSFS+'''';
-   sqlStmt:=''''+RITF_SH_JSMXData.sYWLX+'''';
-   sqlStmt:=''''+RITF_SH_JSMXData.sQSBZ+'''';
-   sqlStmt:=''''+RITF_SH_JSMXData.sBDLX+'''';
-   sqlStmt:=''''+RITF_SH_JSMXData.sQSLSH+'''';
-   sqlStmt:=''''+RITF_SH_JSMXData.sCJBH+'''';
-   sqlStmt:=''''+RITF_SH_JSMXData.sSQBH+'''';
-   sqlStmt:=''''+RITF_SH_JSMXData.sWTBH+'''';
-   sqlStmt:=''''+RITF_SH_JSMXData.sJYRQ+'''';
-   sqlStmt:=''''+RITF_SH_JSMXData.sQSRQ+'''';
-   sqlStmt:=''''+RITF_SH_JSMXData.sJSRQ+'''';
-   sqlStmt:=''''+RITF_SH_JSMXData.sQTRQ+'''';
-   sqlStmt:=''''+RITF_SH_JSMXData.sWTSJ+'''';
-   sqlStmt:=''''+RITF_SH_JSMXData.sCJSJ+'''';
-   sqlStmt:=''''+RITF_SH_JSMXData.sXWH1+'''';
-   sqlStmt:=''''+RITF_SH_JSMXData.sXWH2+'''';
-   sqlStmt:=''''+RITF_SH_JSMXData.sXWHY+'''';
-   sqlStmt:=''''+RITF_SH_JSMXData.sJSHY+'''';
-   sqlStmt:=''''+RITF_SH_JSMXData.sTGHY+'''';
-   sqlStmt:=''''+RITF_SH_JSMXData.sZQZH+'''';
-   sqlStmt:=''''+RITF_SH_JSMXData.sZQDM1+'''';
-   sqlStmt:=''''+RITF_SH_JSMXData.sSQDM2+'''';
-   sqlStmt:=''''+RITF_SH_JSMXData.sZQLB+'''';
-   sqlStmt:=''''+RITF_SH_JSMXData.sLTLX+'''';
-   sqlStmt:=''''+RITF_SH_JSMXData.sQYLB+'''';
-   sqlStmt:=''''+RITF_SH_JSMXData.sGPNF+'''';
-   sqlStmt:=''''+RITF_SH_JSMXData.sMMBZ+'''';
-   sqlStmt:=''''+RITF_SH_JSMXData.sSL+'''';
-   sqlStmt:=''''+RITF_SH_JSMXData.sCJSL+'''';
-   sqlStmt:=''''+RITF_SH_JSMXData.sZJZH+'''';
-   sqlStmt:=''''+RITF_SH_JSMXData.sBZ+'''';
-   sqlStmt:=''''+RITF_SH_JSMXData.sJG1+'''';
-   sqlStmt:=''''+RITF_SH_JSMXData.sJG2+'''';
-   sqlStmt:=''''+RITF_SH_JSMXData.sQSJE+'''';
-   sqlStmt:=''''+RITF_SH_JSMXData.sYHS+'''';
-   sqlStmt:=''''+RITF_SH_JSMXData.sJSF+'''';
-   sqlStmt:=''''+RITF_SH_JSMXData.sGHF+'''';
-   sqlStmt:=''''+RITF_SH_JSMXData.sZGF+'''';
-   sqlStmt:=''''+RITF_SH_JSMXData.sSXF+'''';
-   sqlStmt:=''''+RITF_SH_JSMXData.sQTJE1+'''';
-   sqlStmt:=''''+RITF_SH_JSMXData.sQTJE2+'''';
-   sqlStmt:=''''+RITF_SH_JSMXData.sQTJE3+'''';
-   sqlStmt:=''''+RITF_SH_JSMXData.sSJSF+'''';
-   sqlStmt:=''''+RITF_SH_JSMXData.sJGDM+'''';
-   sqlStmt:=''''+RITF_SH_JSMXData.sFJSM+'''';
-   sqlStmt:=')';
+   sqlStmt:=''''+RITF_SH_JSMXData.sTRD_DATE+''''+',';
+   sqlStmt:=''''+RITF_SH_JSMXData.sITF_CFG_SH+''''+',';
+   sqlStmt:=''''+RITF_SH_JSMXData.sREC_SN+''''+',';
+   sqlStmt:=''''+RITF_SH_JSMXData.sSCDM+''''+',';
+   sqlStmt:=''''+RITF_SH_JSMXData.sJLLX+''''+',';
+   sqlStmt:=''''+RITF_SH_JSMXData.sJYFS+''''+',';
+   sqlStmt:=''''+RITF_SH_JSMXData.sJSFS+''''+',';
+   sqlStmt:=''''+RITF_SH_JSMXData.sYWLX+''''+',';
+   sqlStmt:=''''+RITF_SH_JSMXData.sQSBZ+''''+',';
+   sqlStmt:=''''+RITF_SH_JSMXData.sBDLX+''''+',';
+   sqlStmt:=''''+RITF_SH_JSMXData.sQSLSH+''''+',';
+   sqlStmt:=''''+RITF_SH_JSMXData.sCJBH+''''+',';
+   sqlStmt:=''''+RITF_SH_JSMXData.sSQBH+''''+',';
+   sqlStmt:=''''+RITF_SH_JSMXData.sWTBH+''''+',';
+   sqlStmt:=''''+RITF_SH_JSMXData.sJYRQ+''''+',';
+   sqlStmt:=''''+RITF_SH_JSMXData.sQSRQ+''''+',';
+   sqlStmt:=''''+RITF_SH_JSMXData.sJSRQ+''''+',';
+   sqlStmt:=''''+RITF_SH_JSMXData.sQTRQ+''''+',';
+   sqlStmt:=''''+RITF_SH_JSMXData.sWTSJ+''''+',';
+   sqlStmt:=''''+RITF_SH_JSMXData.sCJSJ+''''+',';
+   sqlStmt:=''''+RITF_SH_JSMXData.sXWH1+''''+',';
+   sqlStmt:=''''+RITF_SH_JSMXData.sXWH2+''''+',';
+   sqlStmt:=''''+RITF_SH_JSMXData.sXWHY+''''+',';
+   sqlStmt:=''''+RITF_SH_JSMXData.sJSHY+''''+',';
+   sqlStmt:=''''+RITF_SH_JSMXData.sTGHY+''''+',';
+   sqlStmt:=''''+RITF_SH_JSMXData.sZQZH+''''+',';
+   sqlStmt:=''''+RITF_SH_JSMXData.sZQDM1+''''+',';
+   sqlStmt:=''''+RITF_SH_JSMXData.sSQDM2+''''+',';
+   sqlStmt:=''''+RITF_SH_JSMXData.sZQLB+''''+',';
+   sqlStmt:=''''+RITF_SH_JSMXData.sLTLX+''''+',';
+   sqlStmt:=''''+RITF_SH_JSMXData.sQYLB+''''+',';
+   sqlStmt:=''''+RITF_SH_JSMXData.sGPNF+''''+',';
+   sqlStmt:=''''+RITF_SH_JSMXData.sMMBZ+''''+',';
+   sqlStmt:=''''+RITF_SH_JSMXData.sSL+''''+',';
+   sqlStmt:=''''+RITF_SH_JSMXData.sCJSL+''''+',';
+   sqlStmt:=''''+RITF_SH_JSMXData.sZJZH+''''+',';
+   sqlStmt:=''''+RITF_SH_JSMXData.sBZ+''''+',';
+   sqlStmt:=''''+RITF_SH_JSMXData.sJG1+''''+',';
+   sqlStmt:=''''+RITF_SH_JSMXData.sJG2+''''+',';
+   sqlStmt:=''''+RITF_SH_JSMXData.sQSJE+''''+',';
+   sqlStmt:=''''+RITF_SH_JSMXData.sYHS+''''+',';
+   sqlStmt:=''''+RITF_SH_JSMXData.sJSF+''''+',';
+   sqlStmt:=''''+RITF_SH_JSMXData.sGHF+''''+',';
+   sqlStmt:=''''+RITF_SH_JSMXData.sZGF+''''+',';
+   sqlStmt:=''''+RITF_SH_JSMXData.sSXF+''''+',';
+   sqlStmt:=''''+RITF_SH_JSMXData.sQTJE1+''''+',';
+   sqlStmt:=''''+RITF_SH_JSMXData.sQTJE2+''''+',';
+   sqlStmt:=''''+RITF_SH_JSMXData.sQTJE3+''''+',';
+   sqlStmt:=''''+RITF_SH_JSMXData.sSJSF+''''+',';
+   sqlStmt:=''''+RITF_SH_JSMXData.sJGDM+''''+',';
+   sqlStmt:=''''+RITF_SH_JSMXData.sFJSM+''''+')';
    exectSqlStmt(sqlStmt);
 end;
 
@@ -427,40 +433,38 @@ begin
 
   sqlStmt:='INSERT INTO ITF_SH_ZJHZ VALUES(';
 
-  sqlStmt:=''''+RITF_SH_ZJHZData.sTRD_DATE+'''';
-  sqlStmt:=''''+RITF_SH_ZJHZData.sITF_CFG_SN+'''';
-  sqlStmt:=''''+RITF_SH_ZJHZData.sREC_SN+'''';
-  sqlStmt:=''''+RITF_SH_ZJHZData.sSCDM+'''';
-  sqlStmt:=''''+RITF_SH_ZJHZData.sJLLX+'''';
+  sqlStmt:=''''+RITF_SH_ZJHZData.sTRD_DATE+''''+',';
+  sqlStmt:=''''+RITF_SH_ZJHZData.sITF_CFG_SN+''''+',';
+  sqlStmt:=''''+RITF_SH_ZJHZData.sREC_SN+''''+',';
+  sqlStmt:=''''+RITF_SH_ZJHZData.sSCDM+''''+',';
+  sqlStmt:=''''+RITF_SH_ZJHZData.sJLLX+''''+',';
 
-  sqlStmt:=''''+RITF_SH_ZJHZData.sJSFS+'''';
-  sqlStmt:=''''+RITF_SH_ZJHZData.sQSRQ+'''';
-  sqlStmt:=''''+RITF_SH_ZJHZData.sJSRQ+'''';
-  sqlStmt:=''''+RITF_SH_ZJHZData.sXWH+'''';
-  sqlStmt:=''''+RITF_SH_ZJHZData.sQSBH+'''';
+  sqlStmt:=''''+RITF_SH_ZJHZData.sJSFS+''''+',';
+  sqlStmt:=''''+RITF_SH_ZJHZData.sQSRQ+''''+',';
+  sqlStmt:=''''+RITF_SH_ZJHZData.sJSRQ+''''+',';
+  sqlStmt:=''''+RITF_SH_ZJHZData.sXWH+''''+',';
+  sqlStmt:=''''+RITF_SH_ZJHZData.sQSBH+''''+',';
 
-  sqlStmt:=''''+RITF_SH_ZJHZData.sZJZH+'''';
-  sqlStmt:=''''+RITF_SH_ZJHZData.sYHDM+'''';
-  sqlStmt:=''''+RITF_SH_ZJHZData.sSJMJE+'''';
-  sqlStmt:=''''+RITF_SH_ZJHZData.sBJMJE+'''';
-  sqlStmt:=''''+RITF_SH_ZJHZData.sQSJE+'''';
+  sqlStmt:=''''+RITF_SH_ZJHZData.sZJZH+''''+',';
+  sqlStmt:=''''+RITF_SH_ZJHZData.sYHDM+''''+',';
+  sqlStmt:=''''+RITF_SH_ZJHZData.sSJMJE+''''+',';
+  sqlStmt:=''''+RITF_SH_ZJHZData.sBJMJE+''''+',';
+  sqlStmt:=''''+RITF_SH_ZJHZData.sQSJE+''''+',';
 
-  sqlStmt:=''''+RITF_SH_ZJHZData.sYHS+'''';
-  sqlStmt:=''''+RITF_SH_ZJHZData.sJSF+'''';
-  sqlStmt:=''''+RITF_SH_ZJHZData.sGHF+'''';
-  sqlStmt:=''''+RITF_SH_ZJHZData.sZGF+'''';
-  sqlStmt:=''''+RITF_SH_ZJHZData.sSXF+'''';
+  sqlStmt:=''''+RITF_SH_ZJHZData.sYHS+''''+',';
+  sqlStmt:=''''+RITF_SH_ZJHZData.sJSF+''''+',';
+  sqlStmt:=''''+RITF_SH_ZJHZData.sGHF+''''+',';
+  sqlStmt:=''''+RITF_SH_ZJHZData.sZGF+''''+',';
+  sqlStmt:=''''+RITF_SH_ZJHZData.sSXF+''''+',';
 
-  sqlStmt:=''''+RITF_SH_ZJHZData.sQTFY1+'''';
-  sqlStmt:=''''+RITF_SH_ZJHZData.sQTFY2+'''';
-  sqlStmt:=''''+RITF_SH_ZJHZData.sQTFY3+'''';
-  sqlStmt:=''''+RITF_SH_ZJHZData.sSJSF+'''';
-  sqlStmt:=''''+RITF_SH_ZJHZData.sQSBZ+'''';
+  sqlStmt:=''''+RITF_SH_ZJHZData.sQTFY1+''''+',';
+  sqlStmt:=''''+RITF_SH_ZJHZData.sQTFY2+''''+',';
+  sqlStmt:=''''+RITF_SH_ZJHZData.sQTFY3+''''+',';
+  sqlStmt:=''''+RITF_SH_ZJHZData.sSJSF+''''+',';
+  sqlStmt:=''''+RITF_SH_ZJHZData.sQSBZ+''''+',';
 
-  sqlStmt:=''''+RITF_SH_ZJHZData.sYYRQ+'''';
-  sqlStmt:=''''+RITF_SH_ZJHZData.sBCSM+'''';
-
-  sqlStmt:=sqlStmt+')';
+  sqlStmt:=''''+RITF_SH_ZJHZData.sYYRQ+''''+',';
+  sqlStmt:=''''+RITF_SH_ZJHZData.sBCSM+''''+')';
   exectSqlStmt(sqlStmt);
 end;
 
@@ -472,28 +476,56 @@ begin
 
   sqlStmt:='INSERT INTO ITF_SH_ZQYE VALUES(';
 
-  sqlStmt:=''''+RITF_SH_ZQYEData.sTRD_DATE+'''';
-  sqlStmt:=''''+RITF_SH_ZQYEData.sITF_CFG_SN+'''';
-  sqlStmt:=''''+RITF_SH_ZQYEData.sREC_SN+'''';
-  sqlStmt:=''''+RITF_SH_ZQYEData.sSCDM+'''';
-  sqlStmt:=''''+RITF_SH_ZQYEData.sQSBH+'''';
+  sqlStmt:=''''+RITF_SH_ZQYEData.sTRD_DATE+''''+',';
+  sqlStmt:=''''+RITF_SH_ZQYEData.sITF_CFG_SN+''''+',';
+  sqlStmt:=''''+RITF_SH_ZQYEData.sREC_SN+''''+',';
+  sqlStmt:=''''+RITF_SH_ZQYEData.sSCDM+''''+',';
+  sqlStmt:=''''+RITF_SH_ZQYEData.sQSBH+''''+',';
 
-  sqlStmt:=''''+RITF_SH_ZQYEData.sZQZH+'''';
-  sqlStmt:=''''+RITF_SH_ZQYEData.sXWH+'''';
-  sqlStmt:=''''+RITF_SH_ZQYEData.sZQDM+'''';
-  sqlStmt:=''''+RITF_SH_ZQYEData.sZQLB+'''';
-  sqlStmt:=''''+RITF_SH_ZQYEData.sLTLX+'''';
+  sqlStmt:=''''+RITF_SH_ZQYEData.sZQZH+''''+',';
+  sqlStmt:=''''+RITF_SH_ZQYEData.sXWH+''''+',';
+  sqlStmt:=''''+RITF_SH_ZQYEData.sZQDM+''''+',';
+  sqlStmt:=''''+RITF_SH_ZQYEData.sZQLB+''''+',';
+  sqlStmt:=''''+RITF_SH_ZQYEData.sLTLX+''''+',';
 
-  sqlStmt:=''''+RITF_SH_ZQYEData.sQYLB+'''';
-  sqlStmt:=''''+RITF_SH_ZQYEData.sGPNF+'''';
-  sqlStmt:=''''+RITF_SH_ZQYEData.sYE1+'''';
-  sqlStmt:=''''+RITF_SH_ZQYEData.sYE2+'''';
-  sqlStmt:=''''+RITF_SH_ZQYEData.sBY_01+'''';
+  sqlStmt:=''''+RITF_SH_ZQYEData.sQYLB+''''+',';
+  sqlStmt:=''''+RITF_SH_ZQYEData.sGPNF+''''+',';
+  sqlStmt:=''''+RITF_SH_ZQYEData.sYE1+''''+',';
+  sqlStmt:=''''+RITF_SH_ZQYEData.sYE2+''''+',';
+  sqlStmt:=''''+RITF_SH_ZQYEData.sBY_01+''''+',';
 
-  sqlStmt:=''''+RITF_SH_ZQYEData.sJZRQ+'''';
+  sqlStmt:=''''+RITF_SH_ZQYEData.sJZRQ+''''+')';
 
-  sqlStmt:=sqlStmt+')';
   exectSqlStmt(sqlStmt);
+end;
+
+procedure TGenData.connectButtonClick(Sender: TObject);
+var
+  sqlStmt:string;
+begin
+  ADOConnection.ConnectionString:='Provider=Microsoft.Jet.OLEDB.4.0;'
+                  +'User ID=Admin;'
+                  +'Data Source=F:\gitPro\delphiPro\udlConnectDB;'
+                  +'Mode=ReadWrite;Jet OLEDB:System database="";'
+                  +'Jet OLEDB:Registry Path="";'
+                  +'Jet OLEDB:Database Password="";'
+                  +'Jet OLEDB:Engine Type=18;'
+                  +'Jet OLEDB:Database Locking Mode=0;'
+                  +'Jet OLEDB:Global Partial Bulk Ops=2;'
+                  +'Jet OLEDB:Global Bulk Transactions=1;'
+                  +'Jet OLEDB:New Database Password="";'
+                  +'Jet OLEDB:Create System Database=False;'
+                  +'Jet OLEDB:Encrypt Database=False;'
+                  +'Jet OLEDB:Don''t Copy Locale on Compact=False;'
+                  +'Jet OLEDB:Compact Without Replica Repair=False;'
+                  +'Jet OLEDB:SFP=False;' ;
+    sqlStmt:='select GDDM from gh';
+    ADOQuery.Close;
+    ADOQuery.SQL.Clear;
+    ADOQuery.SQL.Add(sqlStmt);
+    ADOQuery.Open;
+    Edit1.Text:=ADOQuery.Fields[0].AsString;
+    ADOQuery.Close;
 end;
 
 end.

@@ -1,0 +1,35 @@
+A股买
+
+市场代码 01
+记录类型 001
+ITF_SH_GH
+TRD_DATE 当前日
+ITF_CFG_SN 2012
+REC_SN 自增
+GDDM 输入
+GDXM 为空
+BCRQ 当前日
+CJBH 成交编号7位任意值
+GSDM 交易单元输入
+CJSL 成交数量输入
+BCYE  默认0
+ZQDM  输入
+SBSJ  成交时间102810
+CJSJ  成交时间122810
+CJJG  输入 保留小数点后3位
+CJJE  CJSL*CJJG 保留小数点后两位
+SQBH  LSH+6位编号
+BS    B
+MJBH 默认为空
+
+JSMX
+TRD_DATE   ITF_CFG_SN   REC_SN   SCDM市场代码  JLLX记录类型  JYFS   JSFS   YWLX  QSBZ   GHLX   JSBH       CJBH            SQBH         WTBH     JYRQ    QSRQ     JSRQ       QTRQ  WTSJ  CJSJ   XWH1         XWH2       XWHY    JSHY       TGHY      ZQZH    ZQDM1     ZQDM2   ZQLB   LTLX  QYLB   GPNF  MMBZ  SL   CJSL    ZJZH    BZ   JG1             JG2         QSJE                   YHS      JSF   GHF    ZGF  SXF   QTJE1   QTJE2  QTJE3   SJSF       JGDM   FJSM
+默认当日      2101        自增    01上海        001           001    001   001   060     00A   16位自增    与过户一致       与过户一致    为空     当日     当天    下一交易日    0    为空   为空   交易单元     交易单元   JS509    JS509      为空      输入    输入      为空    PT     0      为空   0     B    输入  输入   输入     RMB   输入小数点后9位    输入      -CJSL*JG1小数点后两位   round(成交金额/1000*利率,2)*1000  0.00     0.00  0.00   QSJE+..SXF  0000   'A股交易清算'
+
+ZJHZ
+TRD_DATE  ITF_CFG_SN   REC_SN    SCDM      JLLX     JSFS    QSRQ            JSRQ            XWH         QSBH      ZJZH        YHDM     SJMJE        BJMJE       QSJE         YHS         JSF        GHF     ZGF       SXF        QTFY1     QTFY2     QTFY3    SJSF        QSBZ    YYRQ     BCSM
+默认当日   2121           自增    01上海     001       001    默认当日        下一交易日      交易单元输入  JS509     18位        000     SJSF卖 汇总   SJSF买汇总 SJMJE-BJMJE    YHS汇总    JSF汇总    GHF汇总   ZGF汇总    SXF汇总    0.00       0.00      0.00     SJSF汇总     060      0     A股交易清算
+
+ZQYE
+TRD_DATE      ITF_CFG_SN    REC_SN   SCDM  QSBH     ZQZH     XWH        ZQDM    ZQLB    LTLX    QYLB      GPNF    YE1                                                                                                       YE2   BY_01   jzrq
+默认当日        2116         自增     01    JS509    输入     交易单元    输入     PT      0       为空       0     证券账户证券代码查STK_ASSET的STK_BLN+JSMX表的证券账户证券代码成交数量买-JSMX表的证券账户证券代码成交数量卖        0    为空     当日

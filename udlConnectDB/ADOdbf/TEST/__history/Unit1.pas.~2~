@@ -1,0 +1,58 @@
+unit Unit1;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, DB, ADODB, StdCtrls, Grids, DBGrids;
+
+type
+  TForm1 = class(TForm)
+    DBGrid1: TDBGrid;
+    OpenDialog1: TOpenDialog;
+    Button1: TButton;
+    DataSource1: TDataSource;
+    ADOQuery1: TADOQuery;
+    Button2: TButton;
+    Edit1: TEdit;
+    Edit2: TEdit;
+    procedure Button1Click(Sender: TObject);
+    procedure Button2Click(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  Form1: TForm1;
+
+implementation
+
+{$R *.dfm}
+
+procedure TForm1.Button1Click(Sender: TObject);
+var
+      filenm,path:string;
+begin
+       if self.OpenDialog1.Execute then
+      begin
+            filenm:=extractfilename(OpenDialog1.filename);
+            path:=extractfiledir(OpenDialog1.filename);
+
+            filenm:=copy(filenm,1,Length(filenm)-4);
+
+            edit2.Text:=filenm;
+            ADOQuery1.ConnectionString:= 'Provider=VFPOLEDB.1;Data Source='+path+';Password="";Collating   Sequence='+filenm;
+      end;
+       //ADOQuery1.ConnectionString:='Provider=Microsoft.Jet.OLEDB.4.0;Data Source='+path+';Extended Properties=dBase 5.0;Persist Security Info=False';
+end;
+
+procedure TForm1.Button2Click(Sender: TObject);
+begin
+       ADOQuery1.Close;
+       ADOQuery1.SQL.Text:=Edit1.Text;
+       ADOQuery1.Open;
+end;
+
+end.

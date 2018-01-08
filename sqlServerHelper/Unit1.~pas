@@ -17,12 +17,14 @@ type
     insertButton: TButton;
     UpdateButton: TButton;
     StatusBar1: TStatusBar;
+    GenDataButton: TButton;
     procedure ADOConnectionAfterConnect(Sender: TObject);
     procedure selectButtonClick(Sender: TObject);
     procedure insertButtonClick(Sender: TObject);
     procedure btConnectDBClick(Sender: TObject);
     procedure ListViewDblClick(Sender: TObject);
     procedure UpdateButtonClick(Sender: TObject);
+    procedure GenDataButtonClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -34,7 +36,7 @@ var
 
 implementation
 
-uses Unit2, Update;
+uses Unit2, Update, GenDataMainForm;
 
 {$R *.dfm}
 
@@ -129,6 +131,11 @@ end;
 procedure TForm1.UpdateButtonClick(Sender: TObject);
 begin
   UpdateForm.show;
+end;
+
+procedure TForm1.GenDataButtonClick(Sender: TObject);
+begin
+  GenData.Show;
 end;
 
 end.

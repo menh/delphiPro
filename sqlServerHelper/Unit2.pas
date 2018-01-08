@@ -21,8 +21,8 @@ type
   end;
 type
   TValueListEditorAccess = class(TValueListEditor)
-  procedure ValueListEditor1DrawCell(Sender: TObject; ACol,
-    ARow: Integer; Rect: TRect; State: TGridDrawState);
+ // procedure ValueListEditor1DrawCell(Sender: TObject; ACol,
+   // ARow: Integer; Rect: TRect; State: TGridDrawState);
 end;
 var
   Form2: TForm2;

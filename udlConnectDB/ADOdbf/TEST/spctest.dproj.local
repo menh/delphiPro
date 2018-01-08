@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>2014-11-15 14:54:08.375.pas,d:\My Documents\RAD Studio\Projects\Unit1.pas=C:\Documents and Settings\Administrator\桌面\spctext.pas</Transaction>
+    <Transaction>2014-11-15 14:54:08.375.dfm,d:\My Documents\RAD Studio\Projects\Unit1.dfm=C:\Documents and Settings\Administrator\桌面\spctext.dfm</Transaction>
+    <Transaction>2014-11-15 14:54:22.968.dproj,d:\My Documents\RAD Studio\Projects\Project1.dproj=C:\Documents and Settings\Administrator\桌面\spctest.dproj</Transaction>
+  </Transactions>
+</BorlandProject>

@@ -4,7 +4,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, ExtCtrls, DB, Grids, DBGrids, ADODB,
+  Dialogs, StdCtrls, ExtCtrls, DB, Grids, DBGrids, ADODB,StrUtils,Math,UnitHashMap,
   ValEdit;
 
 type
@@ -24,13 +24,14 @@ type
     ADOQuery: TADOQuery;
     DBGrid: TDBGrid;
     DataSource: TDataSource;
-    connectButton: TButton;
+    AutoGenFileButton: TButton;
 
     procedure ITF_SH_GHClick(Sender: TObject);
     procedure ITF_SH_JSMXClick(Sender: TObject);
     procedure ITF_SH_ZJHZClick(Sender: TObject);
     procedure ITF_SH_ZQYEClick(Sender: TObject);
-    procedure connectButtonClick(Sender: TObject);
+    procedure AutoGenFileButtonClick(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
   private
     { Private declarations }
   public
@@ -192,6 +193,9 @@ procedure InitRITF_SH_GHData;
 procedure InitRITF_SH_JSMXData;
 procedure InitRITF_SH_ZJHZData;
 procedure InitRITF_SH_ZQYEData;
+function LeftZeroMatch(iNum:Integer;iCount:Integer):string;
+function getSqlStmt(fileName:string):string;
+procedure genGHfile(filename:string);
 var
   GenData: TGenData;
   RBaseData:BaseData;
@@ -205,9 +209,17 @@ var
   ITF_SH_ZJHZList:TList;
   ITF_SH_ZQYEList:TList;
   List:TList;
+
+  ITF_SH_GHMap:TStringHashedMap;
+  ITF_SH_JSMXMap:TStringHashedMap;
+  ITF_SH_ZJHZMap:TStringHashedMap;
+  ITF_SH_ZQYEMap:TStringHashedMap;
+
 implementation
 
 uses Unit1;
+var iCJBH,iSQBH,iJSBH:Integer;
+    fLL:double;
 
 {$R *.dfm}
 procedure InitRBaseData;
@@ -223,25 +235,46 @@ procedure InitRITF_SH_GHData;
 var
  p_kv:^keyvalue;
 begin
-  InitRBaseData;
+  //InitRBaseData;
+
+  ITF_SH_GHMap:=TStringHashedMap.create;
+  ITF_SH_GHMap.Add('GDDM',RBaseData.sZQZH);
+  //ITF_SH_GHMap.Add('GDXM',' ');
+  ITF_SH_GHMap.Add('BCRQ',FormatDateTime('yyyymmdd',now()));
+  ITF_SH_GHMap.Add('CJBH',LeftZeroMatch(iCJBH,7));
+  ITF_SH_GHMap.Add('GSDM',RBaseData.sJYDY);
+
+  ITF_SH_GHMap.Add('CJSL',RBaseData.sCJSL);
+  ITF_SH_GHMap.Add('BCYE','0');
+  ITF_SH_GHMap.Add('ZQDM',RBaseData.sZQDM);
+  ITF_SH_GHMap.Add('SBSJ','102810');
+  ITF_SH_GHMap.Add('CJSJ','112810');
+
+  ITF_SH_GHMap.Add('CJJG',RBaseData.sCJJG);
+  ITF_SH_GHMap.Add('CJJE',FloatToStr(RoundTo(StrToFloat(RBaseData.sCJSL)*StrToFloat(RBaseData.sCJJG),2)));
+  ITF_SH_GHMap.Add('SQBH','LSH'+LeftZeroMatch(iSQBH,6));
+  ITF_SH_GHMap.Add('BS','B');
+ // ITF_SH_GHMap.Add('MJBH',' ');
+
+
   ITF_SH_GHList:=Tlist.create;
   new(p_kv);p_kv.key:='GDDM';p_kv.value:=RBaseData.sZQZH;ITF_SH_GHList.Add(p_kv);
   new(p_kv);p_kv.key:='GDXM';p_kv.value:=' ';ITF_SH_GHList.Add(p_kv);
   new(p_kv);p_kv.key:='BCRQ';p_kv.value:=FormatDateTime('yyyymmdd',now());ITF_SH_GHList.Add(p_kv);
-  new(p_kv);p_kv.key:='CJBH';p_kv.value:='0000000';ITF_SH_GHList.Add(p_kv);
+  new(p_kv);p_kv.key:='CJBH';p_kv.value:=LeftZeroMatch(iCJBH,7);ITF_SH_GHList.Add(p_kv);iCJBH:=iCJBH+1;
   new(p_kv);p_kv.key:='GSDM';p_kv.value:=RBaseData.sJYDY;ITF_SH_GHList.Add(p_kv);
 
   new(p_kv);p_kv.key:='CJSL';p_kv.value:=RBaseData.sCJSL;ITF_SH_GHList.Add(p_kv);
   new(p_kv);p_kv.key:='BCYE';p_kv.value:='0';ITF_SH_GHList.Add(p_kv);
-  new(p_kv);p_kv.key:='ZQDM';p_kv.value:=RBaseData.sZQDM;;ITF_SH_GHList.Add(p_kv);
+  new(p_kv);p_kv.key:='ZQDM';p_kv.value:=RBaseData.sZQDM;ITF_SH_GHList.Add(p_kv);
   new(p_kv);p_kv.key:='SBSJ';p_kv.value:='102810';ITF_SH_GHList.Add(p_kv);
   new(p_kv);p_kv.key:='CJSJ';p_kv.value:='112810';ITF_SH_GHList.Add(p_kv);
 
   new(p_kv);p_kv.key:='CJJG';p_kv.value:=RBaseData.sCJJG;ITF_SH_GHList.Add(p_kv);
-  new(p_kv);p_kv.key:='CJJE';p_kv.value:='';;ITF_SH_GHList.Add(p_kv);
-  new(p_kv);p_kv.key:='SQBH';p_kv.value:='LSH'+'111111';ITF_SH_GHList.Add(p_kv);
+  new(p_kv);p_kv.key:='CJJE';p_kv.value:=FloatToStr(RoundTo(StrToFloat(RBaseData.sCJSL)*StrToFloat(RBaseData.sCJJG),2));ITF_SH_GHList.Add(p_kv);
+  new(p_kv);p_kv.key:='SQBH';p_kv.value:='LSH'+LeftZeroMatch(iSQBH,6);ITF_SH_GHList.Add(p_kv);iSQBH:=iSQBH+1;
   new(p_kv);p_kv.key:='BS';p_kv.value:='B';ITF_SH_GHList.Add(p_kv);
-  new(p_kv);p_kv.key:='MJBH';p_kv.value:=' ';ITF_SH_GHList.Add(p_kv);
+ // new(p_kv);p_kv.key:='MJBH';p_kv.value:=' ';ITF_SH_GHList.Add(p_kv);
 
  {
   RITF_SH_GHData.sGDDM:=RBaseData.sZQZH;
@@ -267,6 +300,66 @@ var
  p_kv:^keyvalue;
 begin
   InitRBaseData;
+
+  ITF_SH_JSMXMap:=TStringHashedMap.create;
+  ITF_SH_JSMXMap.Add('SCDM','01');
+  ITF_SH_JSMXMap.Add('JLLX','001');
+  ITF_SH_JSMXMap.Add('JYFS','001');
+  ITF_SH_JSMXMap.Add('JSFS','001');
+  ITF_SH_JSMXMap.Add('YWLX','001');
+
+  ITF_SH_JSMXMap.Add('QSBZ','060');
+  ITF_SH_JSMXMap.Add('GHLX','00A');
+  ITF_SH_JSMXMap.Add('JSBH',LeftZeroMatch(iJSBH,16));
+  ITF_SH_JSMXMap.Add('CJBH',ITF_SH_GHMap['CJBH']);
+  ITF_SH_JSMXMap.Add('SQBH',ITF_SH_GHMap['SQBH']);
+
+  //ITF_SH_JSMXMap.Add('WTBH',' ');
+  ITF_SH_JSMXMap.Add('JYRQ',FormatDateTime('yyyymmdd',now()));
+  ITF_SH_JSMXMap.Add('QSRQ',FormatDateTime('yyyymmdd',now()));
+  ITF_SH_JSMXMap.Add('JSRQ',FormatDateTime('yyyymmdd',now()));
+  ITF_SH_JSMXMap.Add('QTRQ','0');
+
+  //ITF_SH_JSMXMap.Add('WTSJ',' ');
+  //ITF_SH_JSMXMap.Add('CJSJ',' ');
+  ITF_SH_JSMXMap.Add('XWH1',RBaseData.sJYDY);
+  ITF_SH_JSMXMap.Add('XWH2',RBaseData.sJYDY);
+  ITF_SH_JSMXMap.Add('XWHY','JS509');
+
+  ITF_SH_JSMXMap.Add('JSHY','JS509');
+  //ITF_SH_JSMXMap.Add('TGHY',' ');
+  ITF_SH_JSMXMap.Add('ZQZH',RBaseData.sZQZH);
+  ITF_SH_JSMXMap.Add('ZQDM1',RBaseData.sZQDM);
+  //ITF_SH_JSMXMap.Add('ZQDM2',' ');
+
+  ITF_SH_JSMXMap.Add('ZQLB','PT');
+  ITF_SH_JSMXMap.Add('LTLX','0');
+  //ITF_SH_JSMXMap.Add('QYLB',' ');
+  ITF_SH_JSMXMap.Add('GPNF','0');
+  ITF_SH_JSMXMap.Add('MMBZ','B');
+
+  ITF_SH_JSMXMap.Add('SL',RBaseData.sCJSL);
+  ITF_SH_JSMXMap.Add('CJSL',RBaseData.sCJSL);
+  ITF_SH_JSMXMap.Add('ZJZH',RBaseData.sZJZH);
+  ITF_SH_JSMXMap.Add('BZ','RMB');
+  ITF_SH_JSMXMap.Add('JG1',RBaseData.sCJJG);
+
+  ITF_SH_JSMXMap.Add('JG2',RBaseData.sCJJG);
+  ITF_SH_JSMXMap.Add('QSJE','-'+FloatToStr(RoundTo(StrToFloat(RBaseData.sCJSL)*StrToFloat(RBaseData.sCJJG),2)));
+  ITF_SH_JSMXMap.Add('YHS',FloatToStr(RoundTo(StrToFloat(RBaseData.sCJSL)*StrToFloat(RBaseData.sCJJG)/1000*fLL,2)*1000));
+  ITF_SH_JSMXMap.Add('JSF',FloatToStr(RoundTo(StrToFloat(RBaseData.sCJSL)*StrToFloat(RBaseData.sCJJG)/1000*fLL,2)*1000));
+  ITF_SH_JSMXMap.Add('GHF',FloatToStr(RoundTo(StrToFloat(RBaseData.sCJSL)*StrToFloat(RBaseData.sCJJG)/1000*fLL,2)*1000));
+
+  ITF_SH_JSMXMap.Add('ZGF',FloatToStr(RoundTo(StrToFloat(RBaseData.sCJSL)*StrToFloat(RBaseData.sCJJG)/1000*fLL,2)*1000));
+  ITF_SH_JSMXMap.Add('SXF',FloatToStr(RoundTo(StrToFloat(RBaseData.sCJSL)*StrToFloat(RBaseData.sCJJG)/1000*fLL,2)*1000));
+  ITF_SH_JSMXMap.Add('QTJE1','0.00');
+  ITF_SH_JSMXMap.Add('QTJE2','0.00');
+  ITF_SH_JSMXMap.Add('QTJE3','0.00');
+
+  ITF_SH_JSMXMap.Add('SJSF',FloatToStr(StrToFloat(ITF_SH_JSMXMap['QSJE'])+StrToFloat(ITF_SH_JSMXMap['YHS'])+StrToFloat(ITF_SH_JSMXMap['JSF'])+StrToFloat(ITF_SH_JSMXMap['GHF'])+StrToFloat(ITF_SH_JSMXMap['ZGF'])+StrToFloat(ITF_SH_JSMXMap['SXF'])));
+  ITF_SH_JSMXMap.Add('JGDM','0000');
+  ITF_SH_JSMXMap.Add('FJSM','Ａ股交易清算');
+  
   ITF_SH_JSMXList:=Tlist.create;
   new(p_kv);p_kv.key:='SCDM';p_kv.value:='01';ITF_SH_JSMXList.Add(p_kv);
   new(p_kv);p_kv.key:='JLLX';p_kv.value:='001';ITF_SH_JSMXList.Add(p_kv);
@@ -276,32 +369,32 @@ begin
 
   new(p_kv);p_kv.key:='QSBZ';p_kv.value:='060';ITF_SH_JSMXList.Add(p_kv);
   new(p_kv);p_kv.key:='GHLX';p_kv.value:='00A';ITF_SH_JSMXList.Add(p_kv);
-  new(p_kv);p_kv.key:='JSBH';p_kv.value:='0000000000000000';ITF_SH_JSMXList.Add(p_kv);
+  new(p_kv);p_kv.key:='JSBH';p_kv.value:=LeftZeroMatch(iJSBH,16);ITF_SH_JSMXList.Add(p_kv);iJSBH:=iJSBH+1;
   new(p_kv);p_kv.key:='CJBH';p_kv.value:=RITF_SH_GHData.sCJBH;ITF_SH_JSMXList.Add(p_kv);
   new(p_kv);p_kv.key:='SQBH';p_kv.value:=RITF_SH_GHData.sSQBH;ITF_SH_JSMXList.Add(p_kv);
 
-  new(p_kv);p_kv.key:='WTBH';p_kv.value:=' ';ITF_SH_JSMXList.Add(p_kv);
+  //new(p_kv);p_kv.key:='WTBH';p_kv.value:=' ';ITF_SH_JSMXList.Add(p_kv);
   new(p_kv);p_kv.key:='JYRQ';p_kv.value:='20180112';ITF_SH_JSMXList.Add(p_kv);
   new(p_kv);p_kv.key:='QSRQ';p_kv.value:=RITF_SH_JSMXData.sJYRQ;ITF_SH_JSMXList.Add(p_kv);
   new(p_kv);p_kv.key:='JSRQ';p_kv.value:='20180113';ITF_SH_JSMXList.Add(p_kv);
   new(p_kv);p_kv.key:='QTRQ';p_kv.value:='0';ITF_SH_JSMXList.Add(p_kv);
 
-  new(p_kv);p_kv.key:='WTSJ';p_kv.value:=' ';ITF_SH_JSMXList.Add(p_kv);
-  new(p_kv);p_kv.key:='CJSJ';p_kv.value:=' ';ITF_SH_JSMXList.Add(p_kv);
+  //new(p_kv);p_kv.key:='WTSJ';p_kv.value:=' ';ITF_SH_JSMXList.Add(p_kv);
+  //new(p_kv);p_kv.key:='CJSJ';p_kv.value:=' ';ITF_SH_JSMXList.Add(p_kv);
   new(p_kv);p_kv.key:='XWH1';p_kv.value:=RBaseData.sJYDY;ITF_SH_JSMXList.Add(p_kv);
   new(p_kv);p_kv.key:='XWH2';p_kv.value:=RBaseData.sJYDY;ITF_SH_JSMXList.Add(p_kv);
   new(p_kv);p_kv.key:='XWHY';p_kv.value:='JS509';ITF_SH_JSMXList.Add(p_kv);
 
   new(p_kv);p_kv.key:='JSHY';p_kv.value:='JS509';ITF_SH_JSMXList.Add(p_kv);
-  new(p_kv);p_kv.key:='TGHY';p_kv.value:=' ';ITF_SH_JSMXList.Add(p_kv);
+  //new(p_kv);p_kv.key:='TGHY';p_kv.value:=' ';ITF_SH_JSMXList.Add(p_kv);
   new(p_kv);p_kv.key:='ZQZH';p_kv.value:=RBaseData.sZQZH;ITF_SH_JSMXList.Add(p_kv);
-  new(p_kv);p_kv.key:='ZQDM1';p_kv.value:=RBaseData.sZQDM;;ITF_SH_JSMXList.Add(p_kv);
-  new(p_kv);p_kv.key:='ZQDM2';p_kv.value:=' ';ITF_SH_JSMXList.Add(p_kv);
+  new(p_kv);p_kv.key:='ZQDM1';p_kv.value:=RBaseData.sZQDM;ITF_SH_JSMXList.Add(p_kv);
+  //new(p_kv);p_kv.key:='ZQDM2';p_kv.value:=' ';ITF_SH_JSMXList.Add(p_kv);
 
   new(p_kv);p_kv.key:='ZQLB';p_kv.value:='PT';ITF_SH_JSMXList.Add(p_kv);
   new(p_kv);p_kv.key:='LTLX';p_kv.value:='0';ITF_SH_JSMXList.Add(p_kv);
-  new(p_kv);p_kv.key:='QYLB';p_kv.value:=' ';ITF_SH_JSMXList.Add(p_kv);
-  new(p_kv);p_kv.key:='GPNF';p_kv.value:=' ';ITF_SH_JSMXList.Add(p_kv);
+  //new(p_kv);p_kv.key:='QYLB';p_kv.value:=' ';ITF_SH_JSMXList.Add(p_kv);
+  //new(p_kv);p_kv.key:='GPNF';p_kv.value:=' ';ITF_SH_JSMXList.Add(p_kv);
   new(p_kv);p_kv.key:='MMBZ';p_kv.value:='B';ITF_SH_JSMXList.Add(p_kv);
 
   new(p_kv);p_kv.key:='SL';p_kv.value:=RBaseData.sCJSL;ITF_SH_JSMXList.Add(p_kv);
@@ -312,12 +405,12 @@ begin
 
   new(p_kv);p_kv.key:='JG2';p_kv.value:=RBaseData.sCJJG;ITF_SH_JSMXList.Add(p_kv);
   new(p_kv);p_kv.key:='QSJE';p_kv.value:='-'+' ';ITF_SH_JSMXList.Add(p_kv);//floattostr(strtofloat(RBaseData.sCJSL)*strtofloat(RBaseData.sCJJG));
-  new(p_kv);p_kv.key:='YHS';p_kv.value:=' ';ITF_SH_JSMXList.Add(p_kv); //floattostr(strtofloat(RBaseData.sCJSL)*strtofloat(RBaseData.sCJJG)/1000*0);
-  new(p_kv);p_kv.key:='JSF';p_kv.value:=' ';ITF_SH_JSMXList.Add(p_kv);   //floattostr(strtofloat(RBaseData.sCJSL)*strtofloat(RBaseData.sCJJG)/1000*0);
-  new(p_kv);p_kv.key:='GHF';p_kv.value:=' ';ITF_SH_JSMXList.Add(p_kv);   //floattostr(strtofloat(RBaseData.sCJSL)*strtofloat(RBaseData.sCJJG)/1000*0);
+  //new(p_kv);p_kv.key:='YHS';p_kv.value:=' ';ITF_SH_JSMXList.Add(p_kv); //floattostr(strtofloat(RBaseData.sCJSL)*strtofloat(RBaseData.sCJJG)/1000*0);
+  //new(p_kv);p_kv.key:='JSF';p_kv.value:=' ';ITF_SH_JSMXList.Add(p_kv);   //floattostr(strtofloat(RBaseData.sCJSL)*strtofloat(RBaseData.sCJJG)/1000*0);
+  //new(p_kv);p_kv.key:='GHF';p_kv.value:=' ';ITF_SH_JSMXList.Add(p_kv);   //floattostr(strtofloat(RBaseData.sCJSL)*strtofloat(RBaseData.sCJJG)/1000*0);
 
-  new(p_kv);p_kv.key:='ZGF';p_kv.value:=' ';ITF_SH_JSMXList.Add(p_kv); //floattostr(strtofloat(RBaseData.sCJSL)*strtofloat(RBaseData.sCJJG)/1000*0);
-  new(p_kv);p_kv.key:='SXF';p_kv.value:=' ';ITF_SH_JSMXList.Add(p_kv); //floattostr(strtofloat(RBaseData.sCJSL)*strtofloat(RBaseData.sCJJG)/1000*0);
+  //new(p_kv);p_kv.key:='ZGF';p_kv.value:=' ';ITF_SH_JSMXList.Add(p_kv); //floattostr(strtofloat(RBaseData.sCJSL)*strtofloat(RBaseData.sCJJG)/1000*0);
+  //new(p_kv);p_kv.key:='SXF';p_kv.value:=' ';ITF_SH_JSMXList.Add(p_kv); //floattostr(strtofloat(RBaseData.sCJSL)*strtofloat(RBaseData.sCJJG)/1000*0);
   new(p_kv);p_kv.key:='QTJE1';p_kv.value:='0.00';ITF_SH_JSMXList.Add(p_kv);
   new(p_kv);p_kv.key:='QTJE2';p_kv.value:='0.00';ITF_SH_JSMXList.Add(p_kv);
   new(p_kv);p_kv.key:='QTJE3';p_kv.value:='0.00';ITF_SH_JSMXList.Add(p_kv);
@@ -392,34 +485,67 @@ procedure InitRITF_SH_ZJHZData;
 var
  p_kv:^keyvalue;
 begin
+  InitRBaseData;
+
+  ITF_SH_ZJHZMap:=TStringHashedMap.create;
+  ITF_SH_ZJHZMap.Add('SCDM','01');
+  ITF_SH_ZJHZMap.Add('JLLX','001');
+  ITF_SH_ZJHZMap.Add('JSFS','001');
+  ITF_SH_ZJHZMap.Add('QSRQ',FormatDateTime('yyyymmdd',now()));
+  ITF_SH_ZJHZMap.Add('JSRQ',FormatDateTime('yyyymmdd',now()));
+
+  ITF_SH_ZJHZMap.Add('XWH',RBaseData.sJYDY);
+  ITF_SH_ZJHZMap.Add('QSBH','JS509');
+  ITF_SH_ZJHZMap.Add('ZJZH',RBaseData.sZQZH);
+  ITF_SH_ZJHZMap.Add('YHDM','000');
+  ITF_SH_ZJHZMap.Add('SJMJE','0');
+
+  ITF_SH_ZJHZMap.Add('BJMJE','0');
+  ITF_SH_ZJHZMap.Add('QSJE',FloatToStr(StrTofloat(ITF_SH_ZJHZMap['SJMJE'])-StrTofloat(ITF_SH_ZJHZMap['BJMJE'])));
+  ITF_SH_ZJHZMap.Add('YHS',ITF_SH_JSMXMap['YHS']);
+  ITF_SH_ZJHZMap.Add('JSF',ITF_SH_JSMXMap['JSF']);
+  ITF_SH_ZJHZMap.Add('GHF',ITF_SH_JSMXMap['GHF']);
+
+  ITF_SH_ZJHZMap.Add('ZGF',ITF_SH_JSMXMap['ZGF']);
+  ITF_SH_ZJHZMap.Add('SXF',ITF_SH_JSMXMap['SXF']);
+  ITF_SH_ZJHZMap.Add('QTFY1','0.00');
+  ITF_SH_ZJHZMap.Add('QTFY2','0.00');
+  ITF_SH_ZJHZMap.Add('QTFY3','0.00');
+
+  ITF_SH_ZJHZMap.Add('SJSF',ITF_SH_JSMXMap['SJSF']);
+  ITF_SH_ZJHZMap.Add('QSBZ','060');
+  ITF_SH_ZJHZMap.Add('YYRQ','0');
+  ITF_SH_ZJHZMap.Add('BCSM','A股');
+
+  ITF_SH_ZJHZList:=Tlist.create;
   new(p_kv);p_kv.key:='SCDM';p_kv.value:='01';ITF_SH_ZJHZList.Add(p_kv);
   new(p_kv);p_kv.key:='JLLX';p_kv.value:='001';ITF_SH_ZJHZList.Add(p_kv);
   new(p_kv);p_kv.key:='JSFS';p_kv.value:='001';ITF_SH_ZJHZList.Add(p_kv);
   new(p_kv);p_kv.key:='QSRQ';p_kv.value:=RITF_SH_ZJHZData.sTRD_DATE;ITF_SH_ZJHZList.Add(p_kv);
-  new(p_kv);p_kv.key:='JSRQ';p_kv.value:='next trd date';ITF_SH_ZJHZList.Add(p_kv);
+  new(p_kv);p_kv.key:='JSRQ';p_kv.value:='20181115';ITF_SH_ZJHZList.Add(p_kv);
 
   new(p_kv);p_kv.key:='XWH';p_kv.value:='01';ITF_SH_ZJHZList.Add(p_kv);
   new(p_kv);p_kv.key:='QSBH';p_kv.value:='JS509';ITF_SH_ZJHZList.Add(p_kv);
-  new(p_kv);p_kv.key:='ZJZH';p_kv.value:=RBaseData.sZQZH;;ITF_SH_ZJHZList.Add(p_kv);
+  new(p_kv);p_kv.key:='ZJZH';p_kv.value:=RBaseData.sZQZH;ITF_SH_ZJHZList.Add(p_kv);
   new(p_kv);p_kv.key:='YHDM';p_kv.value:='000';ITF_SH_ZJHZList.Add(p_kv);
-  new(p_kv);p_kv.key:='SJMJE';p_kv.value:='SJSF卖汇总';ITF_SH_ZJHZList.Add(p_kv);
+  new(p_kv);p_kv.key:='SJMJE';p_kv.value:='SJSF';ITF_SH_ZJHZList.Add(p_kv);
 
-  new(p_kv);p_kv.key:='BJMJE';p_kv.value:='SJSF买汇总';ITF_SH_ZJHZList.Add(p_kv);
-  new(p_kv);p_kv.key:='QSJE';p_kv.value:='RITF_SH_ZJHZData.sSJMJE-RITF_SH_ZJHZData.sBJMJE';ITF_SH_ZJHZList.Add(p_kv);
-  new(p_kv);p_kv.key:='YHS';p_kv.value:='YHS汇总';ITF_SH_ZJHZList.Add(p_kv);
-  new(p_kv);p_kv.key:='JSF';p_kv.value:='JSF汇总';ITF_SH_ZJHZList.Add(p_kv);
-  new(p_kv);p_kv.key:='GHF';p_kv.value:='GHF汇总';ITF_SH_ZJHZList.Add(p_kv);
+  new(p_kv);p_kv.key:='BJMJE';p_kv.value:='SJSF';ITF_SH_ZJHZList.Add(p_kv);
+  new(p_kv);p_kv.key:='QSJE';p_kv.value:='RITF';ITF_SH_ZJHZList.Add(p_kv);
+  new(p_kv);p_kv.key:='YHS';p_kv.value:='YHS';ITF_SH_ZJHZList.Add(p_kv);
+  new(p_kv);p_kv.key:='JSF';p_kv.value:='JSF';ITF_SH_ZJHZList.Add(p_kv);
+  new(p_kv);p_kv.key:='GHF';p_kv.value:='GHF';ITF_SH_ZJHZList.Add(p_kv);
 
-  new(p_kv);p_kv.key:='ZGF';p_kv.value:='ZGF汇总';ITF_SH_ZJHZList.Add(p_kv);
-  new(p_kv);p_kv.key:='SXF';p_kv.value:='SXF汇总';ITF_SH_ZJHZList.Add(p_kv);
+  new(p_kv);p_kv.key:='ZGF';p_kv.value:='ZGF';ITF_SH_ZJHZList.Add(p_kv);
+  new(p_kv);p_kv.key:='SXF';p_kv.value:='SXF';ITF_SH_ZJHZList.Add(p_kv);
   new(p_kv);p_kv.key:='QTFY1';p_kv.value:='0.00';ITF_SH_ZJHZList.Add(p_kv);
   new(p_kv);p_kv.key:='QTFY2';p_kv.value:='0.00';ITF_SH_ZJHZList.Add(p_kv);
   new(p_kv);p_kv.key:='QTFY3';p_kv.value:='0.00';ITF_SH_ZJHZList.Add(p_kv);
 
-  new(p_kv);p_kv.key:='SJSF';p_kv.value:='SJSF汇总';ITF_SH_ZJHZList.Add(p_kv);
+  new(p_kv);p_kv.key:='SJSF';p_kv.value:='SJSF';ITF_SH_ZJHZList.Add(p_kv);
   new(p_kv);p_kv.key:='QSBZ';p_kv.value:='060';ITF_SH_ZJHZList.Add(p_kv);
   new(p_kv);p_kv.key:='YYRQ';p_kv.value:='0';ITF_SH_ZJHZList.Add(p_kv);
-  new(p_kv);p_kv.key:='BCSM';p_kv.value:='A股交易清算';ITF_SH_ZJHZList.Add(p_kv);
+  new(p_kv);p_kv.key:='BCSM';p_kv.value:='A股';ITF_SH_ZJHZList.Add(p_kv);
 
 
   RITF_SH_ZJHZData.sSCDM:='01';
@@ -455,6 +581,26 @@ procedure InitRITF_SH_ZQYEData;
 var
  p_kv:^keyvalue;
 begin
+  InitRBaseData;
+
+  ITF_SH_ZQYEMap:=TStringHashedMap.create;
+  ITF_SH_ZQYEMap.Add('SCDM','01');
+  ITF_SH_ZQYEMap.Add('QSBH','JS509');
+  ITF_SH_ZQYEMap.Add('ZQZH',RBaseData.sZQZH);
+  ITF_SH_ZQYEMap.Add('XWH',RBaseData.sJYDY);
+  ITF_SH_ZQYEMap.Add('ZQDM',RBaseData.sZQDM);
+
+  ITF_SH_ZQYEMap.Add('ZQLB','PT');
+  ITF_SH_ZQYEMap.Add('LTLX','0');
+  //ITF_SH_ZQYEMap.Add('QYLB',' ');
+  ITF_SH_ZQYEMap.Add('GPNF','0');
+  ITF_SH_ZQYEMap.Add('YE1','0');
+
+  ITF_SH_ZQYEMap.Add('YE2','0');
+  //ITF_SH_ZQYEMap.Add('BY',' ');
+  ITF_SH_ZQYEMap.Add('JZRQ',FormatDateTime('yyyymmdd',now()));
+
+  ITF_SH_ZQYEList:=Tlist.create;
 
   new(p_kv);p_kv.key:='SCDM';p_kv.value:='01';ITF_SH_ZQYEList.Add(p_kv);
   new(p_kv);p_kv.key:='QSBH';p_kv.value:='JS509';ITF_SH_ZQYEList.Add(p_kv);
@@ -466,12 +612,11 @@ begin
   new(p_kv);p_kv.key:='LTLX';p_kv.value:='0';ITF_SH_ZQYEList.Add(p_kv);
   new(p_kv);p_kv.key:='QYLB';p_kv.value:=' ';ITF_SH_ZQYEList.Add(p_kv);
   new(p_kv);p_kv.key:='GPNF';p_kv.value:='0';ITF_SH_ZQYEList.Add(p_kv);
-  new(p_kv);p_kv.key:='YE1';p_kv.value:='复杂计算';ITF_SH_ZQYEList.Add(p_kv);
+  new(p_kv);p_kv.key:='YE1';p_kv.value:='YE1';ITF_SH_ZQYEList.Add(p_kv);
 
   new(p_kv);p_kv.key:='YE2';p_kv.value:='0';ITF_SH_ZQYEList.Add(p_kv);
-  new(p_kv);p_kv.key:='BY_01';p_kv.value:=' ';ITF_SH_ZQYEList.Add(p_kv);
   new(p_kv);p_kv.key:='JZRQ';p_kv.value:=FormatDateTime('yyyymmdd',now());ITF_SH_ZQYEList.Add(p_kv);
-
+  //new(p_kv);p_kv.key:='BY';p_kv.value:='';ITF_SH_ZQYEList.Add(p_kv);
   {RITF_SH_ZQYEData.sTRD_DATE:=FormatDateTime('yyyymmdd',now());
   RITF_SH_ZQYEData.sITF_CFG_SN:='2116';
   RITF_SH_ZQYEData.sREC_SN:='1'; }
@@ -493,7 +638,7 @@ begin
   RITF_SH_ZQYEData.sJZRQ:=FormatDateTime('yyyymmdd',now());
 end;
 
-procedure getSql(fileName:string);
+function getSqlStmt(fileName:string):string;
 var
   sqlStmt1:string;
   sqlStmt2:string;
@@ -501,30 +646,46 @@ var
   iIndex:Integer;
   p_kv:^keyvalue;
   sqlStmt:string;
+  HashMap:TStringHashedMap;
 begin
   sqlStmt1:='INSERT INTO '+fileName+'(';
   sqlStmt2:='VALUES(';
-  iCount:=ITF_SH_GHList.Count;
+
+  if fileName='gh' then
+  begin
+    HashMap:=ITF_SH_GHMap;
+  end
+  else if fileName='jsmx' then
+  begin
+    HashMap:=ITF_SH_JSMXMap;
+  end
+  else if fileName='zjhz' then
+  begin
+    HashMap:=ITF_SH_ZJHZMap;
+  end
+  else if fileName='zqye' then
+  begin
+    HashMap:=ITF_SH_zqyeMap;
+  end;
+  iCount:=HashMap.Count;
   for iIndex:=0 to iCount-2  do
   begin
-    new(p_kv);
-    p_kv:=ITF_SH_GHList.Items[iIndex];
-    sqlStmt1:=sqlStmt1+p_kv^.key+',';
-    if (p_kv^.value='') or (p_kv^.value=' ') then
+    //p_kv:=ITF_SH_GHList.Items[iIndex];
+    sqlStmt1:=sqlStmt1+HashMap.FirstValue(iIndex)+',';
+    {if (HashMap.FirstValue(iIndex)='') or (HashMap.FirstValue(iIndex)=' ') then
     begin
       p_kv^.value:='0';
-    end;
-    sqlStmt2:=sqlStmt2+''''+p_kv^.value+''''+',';
+    end;}
+    sqlStmt2:=sqlStmt2+''''+HashMap.SecondeValue(iIndex)+''''+',';
   end;
-  new(p_kv);
-  p_kv:=ITF_SH_GHList.Items[iIndex];
-  sqlStmt1:=sqlStmt1+p_kv^.key+') ';
-  if (p_kv^.value='') or (p_kv^.value=' ') then
+  sqlStmt1:=sqlStmt1+HashMap.FirstValue(iIndex)+')';
+ { if (p_kv^.value='') or (p_kv^.value=' ') then
   begin
     p_kv^.value:='0';
-  end;
-  sqlStmt2:=sqlStmt2+''''+p_kv^.value+''''+')';
+  end; }
+  sqlStmt2:=sqlStmt2+''''+HashMap.SecondeValue(iIndex)+''''+')';
   sqlStmt:=sqlStmt1+sqlStmt2;
+  result:=sqlStmt;
 end;
 
 procedure exectSqlStmt(sqlStmt:string);
@@ -552,7 +713,20 @@ begin
     GenData.ADOQuery.ExecSQL;
     GenData.ADOQuery.Close;
 end;
-
+procedure genFile(filename:string);
+var
+  sqlStmt1:string;
+  sqlStmt2:string;
+  sqlStmt:string;
+  iCount:integer;
+  iIndex:integer;
+  p_kv:^keyvalue;
+begin
+  InitRITF_SH_GHData;
+  sqlStmt:=getSqlStmt(filename);
+  GenData.Edit1.Text:=sqlStmt;
+  exectSqlStmt(sqlStmt);
+end;
 procedure TGenData.ITF_SH_GHClick(Sender: TObject);
 var
   sqlStmt1:string;
@@ -563,7 +737,9 @@ var
   p_kv:^keyvalue;
 begin
   InitRITF_SH_GHData;
-  sqlStmt1:='INSERT INTO gh(';
+  sqlStmt:=getSqlStmt('gh');
+  GenData.Edit1.Text:=sqlStmt;
+  {sqlStmt1:='INSERT INTO gh(';
   sqlStmt2:='VALUES(';
   iCount:=ITF_SH_GHList.Count;
   for iIndex:=0 to iCount-2  do
@@ -585,7 +761,7 @@ begin
     p_kv^.value:='0';
   end;
   sqlStmt2:=sqlStmt2+''''+p_kv^.value+''''+')';
-  sqlStmt:=sqlStmt1+sqlStmt2;
+  sqlStmt:=sqlStmt1+sqlStmt2; }
 
   //sqlStmt:=sqlStmt+''''+ RITF_SH_GHData.sTRD_DATE+''''+',';
   //sqlStmt:=sqlStmt+''''+ RITF_SH_GHData.sITF_CFG_SN+''''+',';
@@ -621,7 +797,9 @@ var
   p_kv:^keyvalue;
 begin
   InitRITF_SH_JSMXData;
-  sqlStmt1:='INSERT INTO jsmx(';
+  sqlStmt:=getSqlStmt('jsmx');
+  GenData.Edit1.Text:=sqlStmt;
+  {sqlStmt1:='INSERT INTO jsmx(';
   sqlStmt2:='VALUES(';
   iCount:=ITF_SH_JSMXList.Count;
   for iIndex:=0 to iCount-2  do
@@ -643,7 +821,7 @@ begin
     p_kv^.value:='0';
   end;
   sqlStmt2:=sqlStmt2+''''+p_kv^.value+''''+')';
-  sqlStmt:=sqlStmt1+sqlStmt2;
+  sqlStmt:=sqlStmt1+sqlStmt2;  }
   exectSqlStmt(sqlStmt);
 end;
 
@@ -657,7 +835,9 @@ var
   p_kv:^keyvalue;
 begin
   InitRITF_SH_ZJHZData;
-  sqlStmt1:='INSERT INTO jsmx(';
+  sqlStmt:=getSqlStmt('zjhz');
+  GenData.Edit1.Text:=sqlStmt;
+  {sqlStmt1:='INSERT INTO zjhz(';
   sqlStmt2:='VALUES(';
   iCount:=ITF_SH_ZJHZList.Count;
   for iIndex:=0 to iCount-2  do
@@ -679,70 +859,103 @@ begin
     p_kv^.value:='0';
   end;
   sqlStmt2:=sqlStmt2+''''+p_kv^.value+''''+')';
-  sqlStmt:=sqlStmt1+sqlStmt2;
+  sqlStmt:=sqlStmt1+sqlStmt2; }
   exectSqlStmt(sqlStmt);
 end;
 
 procedure TGenData.ITF_SH_ZQYEClick(Sender: TObject);
 var
-  sqlStmt:String;
+  sqlStmt1:string;
+  sqlStmt2:string;
+  sqlStmt:string;
+  iCount:integer;
+  iIndex:integer;
+  p_kv:^keyvalue;
 begin
   InitRITF_SH_ZQYEData;
-
-  sqlStmt:='INSERT INTO ITF_SH_ZQYE VALUES(';
-
-  sqlStmt:=''''+RITF_SH_ZQYEData.sTRD_DATE+''''+',';
-  sqlStmt:=''''+RITF_SH_ZQYEData.sITF_CFG_SN+''''+',';
-  sqlStmt:=''''+RITF_SH_ZQYEData.sREC_SN+''''+',';
-  sqlStmt:=''''+RITF_SH_ZQYEData.sSCDM+''''+',';
-  sqlStmt:=''''+RITF_SH_ZQYEData.sQSBH+''''+',';
-
-  sqlStmt:=''''+RITF_SH_ZQYEData.sZQZH+''''+',';
-  sqlStmt:=''''+RITF_SH_ZQYEData.sXWH+''''+',';
-  sqlStmt:=''''+RITF_SH_ZQYEData.sZQDM+''''+',';
-  sqlStmt:=''''+RITF_SH_ZQYEData.sZQLB+''''+',';
-  sqlStmt:=''''+RITF_SH_ZQYEData.sLTLX+''''+',';
-
-  sqlStmt:=''''+RITF_SH_ZQYEData.sQYLB+''''+',';
-  sqlStmt:=''''+RITF_SH_ZQYEData.sGPNF+''''+',';
-  sqlStmt:=''''+RITF_SH_ZQYEData.sYE1+''''+',';
-  sqlStmt:=''''+RITF_SH_ZQYEData.sYE2+''''+',';
-  sqlStmt:=''''+RITF_SH_ZQYEData.sBY_01+''''+',';
-
-  sqlStmt:=''''+RITF_SH_ZQYEData.sJZRQ+''''+')';
-
+  sqlStmt:=getSqlStmt('zqye');
+  GenData.Edit1.Text:=sqlStmt;
+  {sqlStmt1:='INSERT INTO zqye(';
+  sqlStmt2:='VALUES(';
+  iCount:=ITF_SH_ZQYEList.Count;
+  for iIndex:=0 to iCount-2  do
+  begin
+    new(p_kv);
+    p_kv:=ITF_SH_ZQYEList.Items[iIndex];
+    sqlStmt1:=sqlStmt1+p_kv^.key+',';
+    if (p_kv^.value='') or (p_kv^.value=' ') then
+    begin
+      p_kv^.value:='0';
+    end;
+    sqlStmt2:=sqlStmt2+''''+p_kv^.value+''''+',';
+  end;
+  new(p_kv);
+  p_kv:=ITF_SH_ZQYEList.Items[iIndex];
+  sqlStmt1:=sqlStmt1+p_kv^.key+') ';
+  if (p_kv^.value='') or (p_kv^.value=' ') then
+  begin
+    p_kv^.value:='0';
+  end;
+  sqlStmt2:=sqlStmt2+''''+p_kv^.value+''''+')';
+  sqlStmt:=sqlStmt1+sqlStmt2;   }
   exectSqlStmt(sqlStmt);
 end;
 
-procedure TGenData.connectButtonClick(Sender: TObject);
+procedure TGenData.AutoGenFileButtonClick(Sender: TObject);
 var
+  sTableName:string;
   sqlStmt:string;
-  p_kv:^keyvalue;
+  rows:Integer;
 begin
-edit1.Text:=inttostr(ITF_SH_GHList.Count);
- ADOConnection.ConnectionString:='Provider=Microsoft.Jet.OLEDB.4.0;'
-                  +'User ID=Admin;'
-                  +'Data Source=F:\gitPro\delphiPro\udlConnectDB;'
-                  +'Mode=ReadWrite;Jet OLEDB:System database="";'
-                  +'Jet OLEDB:Registry Path="";'
-                  +'Jet OLEDB:Database Password="";'
-                  +'Jet OLEDB:Engine Type=18;'
-                  +'Jet OLEDB:Database Locking Mode=0;'
-                  +'Jet OLEDB:Global Partial Bulk Ops=2;'
-                  +'Jet OLEDB:Global Bulk Transactions=1;'
-                  +'Jet OLEDB:New Database Password="";'
-                  +'Jet OLEDB:Create System Database=False;'
-                  +'Jet OLEDB:Encrypt Database=False;'
-                  +'Jet OLEDB:Don''t Copy Locale on Compact=False;'
-                  +'Jet OLEDB:Compact Without Replica Repair=False;'
-                  +'Jet OLEDB:SFP=False;' ;
-    sqlStmt:='select GDDM from gh';
-  //  ADOQuery.Close;
-  //  ADOQuery.SQL.Clear;
-   // ADOQuery.SQL.Add(sqlStmt);
-   // ADOQuery.Open;
-   // Edit1.Text:=ADOQuery.Fields[0].AsString;
-   // ADOQuery.Close;
+  sTableName:='STK_ORDER';
+  Form1.ADOQuery.Close;
+  Form1.ADOQuery.SQL.Clear;
+  sqlStmt:='SELECT TRDPBU,TRDACCT,CUACCT_CODE,STK_CODE,MATCHED_QTY,ORDER_PRICE '+
+           'FROM ' +sTableName;
+  Form1.ADOQuery.SQL.Add(sqlStmt);
+  Form1.ADOQuery.Open;
+  rows:=Form1.Adoquery.RecordCount;
+  RBaseData.sJYDY:=Form1.Adoquery.FieldValues['TRDPBU'];
+  RBaseData.sZQDM:=Form1.Adoquery.FieldValues['STK_CODE'];
+  RBaseData.sCJSL:=Form1.Adoquery.FieldValues['MATCHED_QTY'];
+  RBaseData.sCJJG:=Form1.Adoquery.FieldValues['ORDER_PRICE'];
+  RBaseData.sZQZH:=Form1.Adoquery.FieldValues['CUACCT_CODE'];
+  RBaseData.sZJZH:=Form1.Adoquery.FieldValues['TRDACCT'];
+  genGHfile;
+end;
+function LeftZeroMatch(iNum:Integer;iCount:Integer):string;
+var
+  sNumString:string;
+  iStrLen:Integer;
+  iIndex:Integer;
+begin
+  sNumString:=ReverseString(inttostr(iNum));
+  iStrlen:=Length(sNumString);
+  for iIndex:=1 to iCount-iStrlen do
+  begin
+    sNumString:=sNumString+'0';
+  end;
+  LeftZeroMatch:=ReverseString(sNumString);
+end;
+
+procedure TGenData.FormCreate(Sender: TObject);
+var
+  TSH:TStringHashedMap;
+  TSH2:TStringHashedMap;
+  TSH3:TStringHashedMap;
+begin
+  iCJBH:=1;
+  iSQBH:=1;
+  iJSBH:=1;
+  fLL:=1.0;
+  //ShowMessage(LeftZeroMatch(123,7));
+  TSH:=TStringHashedMap.Create;
+  TSH3:=TStringHashedMap.Create;
+  TSH.Add('k1','a');
+  TSH.Add('k2','ab');
+   TSH3.Add('ss','ssss');
+  TSH2:=TSH;
+  showmessage(TSH3.FirstValue(0));
 end;
 
 end.

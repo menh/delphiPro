@@ -1,6 +1,6 @@
 object Form1: TForm1
-  Left = 192
-  Top = 131
+  Left = 215
+  Top = 168
   Width = 928
   Height = 480
   Caption = 'Form1'
@@ -28,19 +28,18 @@ object Form1: TForm1
     Columns = <
       item
         Expanded = False
-        FieldName = 'id'
-        Visible = True
-      end
-      item
-        Expanded = False
-        FieldName = 'name'
-        Visible = True
-      end
-      item
-        Expanded = False
-        FieldName = 'sex'
+        FieldName = 'GDDM'
         Visible = True
       end>
+  end
+  object Button1: TButton
+    Left = 152
+    Top = 232
+    Width = 75
+    Height = 25
+    Caption = 'Button1'
+    TabOrder = 1
+    OnClick = Button1Click
   end
   object DataSource1: TDataSource
     DataSet = ADOQuery1
@@ -48,18 +47,25 @@ object Form1: TForm1
     Top = 80
   end
   object ADOConnection1: TADOConnection
-    ConnectionString = 'FILE NAME=F:\gitPro\delphiPro\udlConnectDB\adoDB.udl;'
-    DefaultDatabase = 'MHTest'
+    Connected = True
+    ConnectionString = 
+      'Provider=Microsoft.Jet.OLEDB.4.0;Data Source=F:\gitPro\delphiPro' +
+      '\udlConnectDB;Mode=ReadWrite;Extended Properties=dBase 5.0;Persi' +
+      'st Security Info=False'
+    CursorLocation = clUseServer
     LoginPrompt = False
-    Provider = 'F:\gitPro\delphiPro\udlConnectDB\adoDB.udl'
+    Mode = cmReadWrite
+    Provider = 'Microsoft.Jet.OLEDB.4.0'
     Left = 192
     Top = 80
   end
   object ADOQuery1: TADOQuery
+    Active = True
     Connection = ADOConnection1
+    CursorType = ctStatic
     Parameters = <>
     SQL.Strings = (
-      'SELECT id,name,sex FROM [table1]')
+      'SELECT GDDM FROM [gh]')
     Left = 248
     Top = 80
   end

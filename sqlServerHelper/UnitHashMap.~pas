@@ -11,6 +11,7 @@ type
     function GetItem(Key:String):String;
     procedure SetItem(Key:string;const value:string);
     function GetCount:integer;
+
   public
     constructor Create;
     destructor Destroy;override;
@@ -18,6 +19,8 @@ type
     property Count:Integer read GetCount;
     procedure Add(Key,Str:string);
     procedure Delete(Key:string);
+    function FirstValue(index:Integer):string;
+    function SecondeValue(index:Integer):string;
   end;
 implementation
 procedure TStringHashedMap.Add(Key,str:string);
@@ -72,5 +75,14 @@ var
 begin
   KeyIndex:=FKeylist.IndexOf(Key);
   FStrList[KeyIndex]:=Value;
+end;
+
+function TStringHashedMap.FirstValue(Index:Integer):string;
+begin
+  result:=FKeyList[Index];
+end;
+function TStringHashedMap.SecondeValue(Index:Integer):string;
+begin
+  result:=FStrList[Index];
 end;
 end.

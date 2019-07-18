@@ -21,6 +21,7 @@ type
     procedure Delete(Key:string);
     function FirstValue(index:Integer):string;
     function SecondeValue(index:Integer):string;
+    function isfind(Key:string):boolean;
   end;
 implementation
 procedure TStringHashedMap.Add(Key,str:string);
@@ -84,5 +85,17 @@ end;
 function TStringHashedMap.SecondeValue(Index:Integer):string;
 begin
   result:=FStrList[Index];
+end;
+
+function TStringHashedMap.isfind(Key:string):boolean;
+begin
+  if FKeyList.IndexOf(Key)<>-1 then
+  begin
+    result:=true;
+  end
+  else
+  begin
+    result:=false;
+  end;
 end;
 end.

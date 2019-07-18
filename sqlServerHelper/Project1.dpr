@@ -6,7 +6,9 @@ uses
   Unit1 in 'Unit1.pas' {Form1},
   Unit2 in 'Unit2.pas' {Form2},
   Update in 'Update.pas' {UpdateForm},
-  GenDataMainForm in 'GenDataMainForm.pas' {GenData};
+  GenDataMainForm in 'GenDataMainForm.pas' {GenData},
+  UnitStrDecordMap in 'UnitStrDecordMap.pas';
+
 {$R *.res}
 
 begin

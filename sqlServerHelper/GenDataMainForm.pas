@@ -5,6 +5,7 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls, ExtCtrls, DB, Grids, DBGrids, ADODB,StrUtils,Math,UnitHashMap,
+  UnitStrDecordMap,GenOptData,
   ValEdit;
 
 type
@@ -25,6 +26,7 @@ type
     DBGrid: TDBGrid;
     DataSource: TDataSource;
     AutoGenFileButton: TButton;
+    ShowOPTButton: TButton;
 
     procedure ITF_SH_GHClick(Sender: TObject);
     procedure ITF_SH_JSMXClick(Sender: TObject);
@@ -32,6 +34,7 @@ type
     procedure ITF_SH_ZQYEClick(Sender: TObject);
     procedure AutoGenFileButtonClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
+    procedure ShowOPTButtonClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -56,6 +59,7 @@ type
     sCJJG:string;
     sZQZH:string;
     sZJZH:string;
+    sSTK_BIZ:string;
    end;
 type
   ITF_SH_GHData=record
@@ -170,6 +174,8 @@ type
     sBCSM:string;
   end;
 type
+  PITF_SH_ZJHZData=^ITF_SH_ZJHZData;
+type
   ITF_SH_ZQYEData=record
     sTRD_DATE:string;
     sITF_CFG_SN:string;
@@ -188,14 +194,21 @@ type
     sBY_01:string;
     sJZRQ:string;
   end;
+type
+  PITF_SH_ZQYEData=^ITF_SH_ZQYEData;
+  
 procedure InitRBaseData;
 procedure InitRITF_SH_GHData;
 procedure InitRITF_SH_JSMXData;
-procedure InitRITF_SH_ZJHZData;
-procedure InitRITF_SH_ZQYEData;
+procedure InitRITF_SH_ZJHZData(pZJZH:string;pITF_SH_ZJHZSUMMap:TStrDecordMap);
+
+//procedure CalRITF_SH_ZJHZData;
+procedure InitRITF_SH_ZQYEData(pSTK_BIN:string;pZQDM:string;pITF_SH_ZQYESUMMap:TStrDecordMap);
 function LeftZeroMatch(iNum:Integer;iCount:Integer):string;
 function getSqlStmt(fileName:string):string;
-procedure genGHfile(filename:string);
+procedure genfile(filename:string);
+procedure deletefile(filename:string);
+procedure addmap(pTStrDecordMap:TStrDecordMap);
 var
   GenData: TGenData;
   RBaseData:BaseData;
@@ -213,13 +226,20 @@ var
   ITF_SH_GHMap:TStringHashedMap;
   ITF_SH_JSMXMap:TStringHashedMap;
   ITF_SH_ZJHZMap:TStringHashedMap;
+  ITF_SH_ZJHZSUMMap:TStrDecordMap;
   ITF_SH_ZQYEMap:TStringHashedMap;
-
+  ITF_SH_ZQYESUMMap:TStrDecordMap;
+procedure InitRITF_SH_ZJHZPtrData(pZJZH:string;pITF_SH_ZJHZSUMMap:TStrDecordMap;pITF_SH_JSMXMap:TStringHashedMap);
+procedure calRITF_SH_ZJHZPtrData(pZJZH:string;pITF_SH_ZJHZSUMMap:TStrDecordMap;pITF_SH_JSMXMap:TStringHashedMap);
+procedure InitRITF_SH_ZQYEPtrData(pZQDM:string;pITF_SH_ZQYESUMMap:TStrDecordMap;pITF_SH_JSMXMap:TStringHashedMap);
+procedure calRITF_SH_ZQYEPtrData(pZQDM:string;pITF_SH_ZQYESUMMap:TStrDecordMap;pITF_SH_JSMXMap:TStringHashedMap);
 implementation
 
 uses Unit1;
 var iCJBH,iSQBH,iJSBH:Integer;
     fLL:double;
+
+
 
 {$R *.dfm}
 procedure InitRBaseData;
@@ -241,7 +261,7 @@ begin
   ITF_SH_GHMap.Add('GDDM',RBaseData.sZQZH);
   //ITF_SH_GHMap.Add('GDXM',' ');
   ITF_SH_GHMap.Add('BCRQ',FormatDateTime('yyyymmdd',now()));
-  ITF_SH_GHMap.Add('CJBH',LeftZeroMatch(iCJBH,7));
+  ITF_SH_GHMap.Add('CJBH',LeftZeroMatch(iCJBH,7));iCJBH:=iCJBH+1;
   ITF_SH_GHMap.Add('GSDM',RBaseData.sJYDY);
 
   ITF_SH_GHMap.Add('CJSL',RBaseData.sCJSL);
@@ -253,15 +273,21 @@ begin
   ITF_SH_GHMap.Add('CJJG',RBaseData.sCJJG);
   ITF_SH_GHMap.Add('CJJE',FloatToStr(RoundTo(StrToFloat(RBaseData.sCJSL)*StrToFloat(RBaseData.sCJJG),2)));
   ITF_SH_GHMap.Add('SQBH','LSH'+LeftZeroMatch(iSQBH,6));
-  ITF_SH_GHMap.Add('BS','B');
+  if RBaseData.sSTK_BIZ='100' then
+  begin
+    ITF_SH_GHMap.Add('BS','B');
+  end
+  else
+    ITF_SH_GHMap.Add('BS','S');
+  begin
+  end;
  // ITF_SH_GHMap.Add('MJBH',' ');
-
 
   ITF_SH_GHList:=Tlist.create;
   new(p_kv);p_kv.key:='GDDM';p_kv.value:=RBaseData.sZQZH;ITF_SH_GHList.Add(p_kv);
   new(p_kv);p_kv.key:='GDXM';p_kv.value:=' ';ITF_SH_GHList.Add(p_kv);
   new(p_kv);p_kv.key:='BCRQ';p_kv.value:=FormatDateTime('yyyymmdd',now());ITF_SH_GHList.Add(p_kv);
-  new(p_kv);p_kv.key:='CJBH';p_kv.value:=LeftZeroMatch(iCJBH,7);ITF_SH_GHList.Add(p_kv);iCJBH:=iCJBH+1;
+  new(p_kv);p_kv.key:='CJBH';p_kv.value:=LeftZeroMatch(iCJBH,7);ITF_SH_GHList.Add(p_kv);
   new(p_kv);p_kv.key:='GSDM';p_kv.value:=RBaseData.sJYDY;ITF_SH_GHList.Add(p_kv);
 
   new(p_kv);p_kv.key:='CJSL';p_kv.value:=RBaseData.sCJSL;ITF_SH_GHList.Add(p_kv);
@@ -299,7 +325,6 @@ procedure InitRITF_SH_JSMXData;
 var
  p_kv:^keyvalue;
 begin
-  InitRBaseData;
 
   ITF_SH_JSMXMap:=TStringHashedMap.create;
   ITF_SH_JSMXMap.Add('SCDM','01');
@@ -310,7 +335,7 @@ begin
 
   ITF_SH_JSMXMap.Add('QSBZ','060');
   ITF_SH_JSMXMap.Add('GHLX','00A');
-  ITF_SH_JSMXMap.Add('JSBH',LeftZeroMatch(iJSBH,16));
+  ITF_SH_JSMXMap.Add('JSBH',LeftZeroMatch(iJSBH,16));iJSBH:=iJSBH+1;
   ITF_SH_JSMXMap.Add('CJBH',ITF_SH_GHMap['CJBH']);
   ITF_SH_JSMXMap.Add('SQBH',ITF_SH_GHMap['SQBH']);
 
@@ -369,7 +394,7 @@ begin
 
   new(p_kv);p_kv.key:='QSBZ';p_kv.value:='060';ITF_SH_JSMXList.Add(p_kv);
   new(p_kv);p_kv.key:='GHLX';p_kv.value:='00A';ITF_SH_JSMXList.Add(p_kv);
-  new(p_kv);p_kv.key:='JSBH';p_kv.value:=LeftZeroMatch(iJSBH,16);ITF_SH_JSMXList.Add(p_kv);iJSBH:=iJSBH+1;
+  new(p_kv);p_kv.key:='JSBH';p_kv.value:=LeftZeroMatch(iJSBH,16);ITF_SH_JSMXList.Add(p_kv);
   new(p_kv);p_kv.key:='CJBH';p_kv.value:=RITF_SH_GHData.sCJBH;ITF_SH_JSMXList.Add(p_kv);
   new(p_kv);p_kv.key:='SQBH';p_kv.value:=RITF_SH_GHData.sSQBH;ITF_SH_JSMXList.Add(p_kv);
 
@@ -481,41 +506,117 @@ begin
   RITF_SH_JSMXData.sJGDM:='0000';
   RITF_SH_JSMXData.sFJSM:='Ａ股交易清算';
 end;
-procedure InitRITF_SH_ZJHZData;
+
+procedure calRITF_SH_ZJHZPtrData(pZJZH:string;pITF_SH_ZJHZSUMMap:TStrDecordMap;pITF_SH_JSMXMap:TStringHashedMap);
 var
- p_kv:^keyvalue;
+  ptr:PITF_SH_ZJHZData;
 begin
-  InitRBaseData;
+  ptr:=pITF_SH_ZJHZSUMMap[pZJZH];
 
+  {ptr.sSCDM:='01';
+  ptr.sJLLX:='001';
+  ptr.sJSFS:='001';
+  ptr.sQSRQ:=FormatDateTime('yyyymmdd',now());
+  ptr.sJSRQ:=FormatDateTime('yyyymmdd',now());
+
+  ptr.sXWH:=pITF_SH_JSMXMap['XWH1'];
+  ptr.sQSBH:='JS509';
+  ptr.sZJZH:=pITF_SH_JSMXMap['ZQZH'];
+  ptr.sYHDM:='000';}
+  ptr.sSJMJE:='0';
+
+  ptr.sBJMJE:='0';
+  ptr.sQSJE:=FloatToStr(StrTofloat(ptr.sSJMJE)-StrTofloat(ptr.sBJMJE));
+  ptr.sYHS:=floattostr(Strtofloat(ptr.sYHS)+Strtofloat(pITF_SH_JSMXMap['YHS']));
+  ptr.sJSF:=floattostr(Strtofloat(ptr.sJSF)+Strtofloat(pITF_SH_JSMXMap['JSF']));
+  ptr.sGHF:=floattostr(Strtofloat(ptr.sGHF)+Strtofloat(pITF_SH_JSMXMap['GHF']));
+
+  ptr.sZGF:=floattostr(Strtofloat(ptr.sZGF)+Strtofloat(pITF_SH_JSMXMap['ZGF']));
+  ptr.sSXF:=floattostr(Strtofloat(ptr.sSXF)+Strtofloat(pITF_SH_JSMXMap['SXF']));
+  ptr.sQTFY1:='0.00';
+  ptr.sQTFY2:='0.00';
+  ptr.sQTFY3:='0.00';
+
+  ptr.sSJSF:=floattostr(Strtofloat(ptr.sSJSF)+Strtofloat(pITF_SH_JSMXMap['SJSF']));
+ { ptr.sQSBZ:='060';
+  ptr.sYYRQ:='0';
+  ptr.sBCSM:='A股'; }
+
+  pITF_SH_ZJHZSUMMap.Add(pZJZH,ptr);
+end;
+
+procedure InitRITF_SH_ZJHZPtrData(pZJZH:string;pITF_SH_ZJHZSUMMap:TStrDecordMap;pITF_SH_JSMXMap:TStringHashedMap);
+var
+  ptr:PITF_SH_ZJHZData;
+begin
+  new(ptr);
+  ptr.sSCDM:='01';
+  ptr.sJLLX:='001';
+  ptr.sJSFS:='001';
+  ptr.sQSRQ:=FormatDateTime('yyyymmdd',now());
+  ptr.sJSRQ:=FormatDateTime('yyyymmdd',now());
+
+  ptr.sXWH:=pITF_SH_JSMXMap['XWH1'];
+  ptr.sQSBH:='JS509';
+  ptr.sZJZH:=pITF_SH_JSMXMap['ZQZH'];
+  ptr.sYHDM:='000';
+  ptr.sSJMJE:='0';
+
+  ptr.sBJMJE:='0';
+  ptr.sQSJE:=FloatToStr(StrTofloat(ptr.sSJMJE)-StrTofloat(ptr.sBJMJE));
+  ptr.sYHS:=pITF_SH_JSMXMap['YHS'];
+  ptr.sJSF:=pITF_SH_JSMXMap['JSF'];
+  ptr.sGHF:=pITF_SH_JSMXMap['GHF'];
+
+  ptr.sZGF:=pITF_SH_JSMXMap['ZGF'];
+  ptr.sSXF:=pITF_SH_JSMXMap['SXF'];
+  ptr.sQTFY1:='0.00';
+  ptr.sQTFY2:='0.00';
+  ptr.sQTFY3:='0.00';
+
+  ptr.sSJSF:=pITF_SH_JSMXMap['SJSF'];
+  ptr.sQSBZ:='060';
+  ptr.sYYRQ:='0';
+  ptr.sBCSM:='A股';
+
+  pITF_SH_ZJHZSUMMap.Add(pZJZH,ptr);
+end;
+
+procedure InitRITF_SH_ZJHZData(pZJZH:string;pITF_SH_ZJHZSUMMap:TStrDecordMap);
+var
+  p_kv:^keyvalue;
+  ptr:PITF_SH_ZJHZData;
+begin
+  ptr:=pITF_SH_ZJHZSUMMap[pZJZH];
   ITF_SH_ZJHZMap:=TStringHashedMap.create;
-  ITF_SH_ZJHZMap.Add('SCDM','01');
-  ITF_SH_ZJHZMap.Add('JLLX','001');
-  ITF_SH_ZJHZMap.Add('JSFS','001');
-  ITF_SH_ZJHZMap.Add('QSRQ',FormatDateTime('yyyymmdd',now()));
-  ITF_SH_ZJHZMap.Add('JSRQ',FormatDateTime('yyyymmdd',now()));
+  ITF_SH_ZJHZMap.Add('SCDM',ptr.sSCDM);
+  ITF_SH_ZJHZMap.Add('JLLX',ptr.sJLLX);
+  ITF_SH_ZJHZMap.Add('JSFS',ptr.sJSFS);
+  ITF_SH_ZJHZMap.Add('QSRQ',ptr.sQSRQ);
+  ITF_SH_ZJHZMap.Add('JSRQ',ptr.sJSRQ);
 
-  ITF_SH_ZJHZMap.Add('XWH',RBaseData.sJYDY);
-  ITF_SH_ZJHZMap.Add('QSBH','JS509');
-  ITF_SH_ZJHZMap.Add('ZJZH',RBaseData.sZQZH);
-  ITF_SH_ZJHZMap.Add('YHDM','000');
-  ITF_SH_ZJHZMap.Add('SJMJE','0');
+  ITF_SH_ZJHZMap.Add('XWH',ptr.sXWH);
+  ITF_SH_ZJHZMap.Add('QSBH',ptr.sQSBH);
+  ITF_SH_ZJHZMap.Add('ZJZH',ptr.sZJZH);
+  ITF_SH_ZJHZMap.Add('YHDM',ptr.sYHDM);
+  ITF_SH_ZJHZMap.Add('SJMJE',ptr.sSJMJE);
 
-  ITF_SH_ZJHZMap.Add('BJMJE','0');
-  ITF_SH_ZJHZMap.Add('QSJE',FloatToStr(StrTofloat(ITF_SH_ZJHZMap['SJMJE'])-StrTofloat(ITF_SH_ZJHZMap['BJMJE'])));
-  ITF_SH_ZJHZMap.Add('YHS',ITF_SH_JSMXMap['YHS']);
-  ITF_SH_ZJHZMap.Add('JSF',ITF_SH_JSMXMap['JSF']);
-  ITF_SH_ZJHZMap.Add('GHF',ITF_SH_JSMXMap['GHF']);
+  ITF_SH_ZJHZMap.Add('BJMJE',ptr.sBJMJE);
+  ITF_SH_ZJHZMap.Add('QSJE',ptr.sQSJE);
+  ITF_SH_ZJHZMap.Add('YHS',ptr.sYHS);
+  ITF_SH_ZJHZMap.Add('JSF',ptr.sJSF);
+  ITF_SH_ZJHZMap.Add('GHF',ptr.sGHF);
 
-  ITF_SH_ZJHZMap.Add('ZGF',ITF_SH_JSMXMap['ZGF']);
-  ITF_SH_ZJHZMap.Add('SXF',ITF_SH_JSMXMap['SXF']);
-  ITF_SH_ZJHZMap.Add('QTFY1','0.00');
-  ITF_SH_ZJHZMap.Add('QTFY2','0.00');
-  ITF_SH_ZJHZMap.Add('QTFY3','0.00');
+  ITF_SH_ZJHZMap.Add('ZGF',ptr.sZGF);
+  ITF_SH_ZJHZMap.Add('SXF',ptr.sSXF);
+  ITF_SH_ZJHZMap.Add('QTFY1',ptr.sQTFY1);
+  ITF_SH_ZJHZMap.Add('QTFY2',ptr.sQTFY2);
+  ITF_SH_ZJHZMap.Add('QTFY3',ptr.sQTFY3);
 
-  ITF_SH_ZJHZMap.Add('SJSF',ITF_SH_JSMXMap['SJSF']);
-  ITF_SH_ZJHZMap.Add('QSBZ','060');
-  ITF_SH_ZJHZMap.Add('YYRQ','0');
-  ITF_SH_ZJHZMap.Add('BCSM','A股');
+  ITF_SH_ZJHZMap.Add('SJSF',ptr.sSJSF);
+  ITF_SH_ZJHZMap.Add('QSBZ',ptr.sQSBZ);
+  ITF_SH_ZJHZMap.Add('YYRQ',ptr.sYYRQ);
+  ITF_SH_ZJHZMap.Add('BCSM',ptr.sBCSM);
 
   ITF_SH_ZJHZList:=Tlist.create;
   new(p_kv);p_kv.key:='SCDM';p_kv.value:='01';ITF_SH_ZJHZList.Add(p_kv);
@@ -577,28 +678,62 @@ begin
   RITF_SH_ZJHZData.sYYRQ:='0';
   RITF_SH_ZJHZData.sBCSM:='A股交易清算';
 end;
-procedure InitRITF_SH_ZQYEData;
+
+procedure InitRITF_SH_ZQYEPtrData(pZQDM:string;pITF_SH_ZQYESUMMap:TStrDecordMap;pITF_SH_JSMXMap:TStringHashedMap);
+var
+  ptr:PITF_SH_ZQYEData;
+begin
+  new(ptr);
+
+  ptr.sSCDM:='01';
+  ptr.sQSBH:='JS509';
+  ptr.sZQZH:=pITF_SH_JSMXMap['ZQZH'];
+  ptr.sXWH:=pITF_SH_JSMXMap['XWH1'];
+  ptr.sZQDM:=pITF_SH_JSMXMap['ZQDM1'];
+
+  ptr.sZQLB:='PT';
+  ptr.sLTLX:='0';
+  //ptr.sQYLB:=' ';
+  ptr.sGPNF:='0';
+  ptr.sYE1:=pITF_SH_JSMXMap['CJSL'];
+
+  ptr.sYE2:='0';
+  //ptr.sBY_01:=' ';
+  ptr.sJZRQ:=FormatDateTime('yyyymmdd',now());
+
+  pITF_SH_ZQYESUMMap.Add(pZQDM,ptr);
+end;
+
+procedure calRITF_SH_ZQYEPtrData(pZQDM:string;pITF_SH_ZQYESUMMap:TStrDecordMap;pITF_SH_JSMXMap:TStringHashedMap);
+var
+  ptr:PITF_SH_ZQYEData;
+begin
+  ptr:=pITF_SH_ZQYESUMMap[pZQDM];
+  ptr.sYE1:=ptr.sYE1+pITF_SH_JSMXMap['CJSL'];
+end;
+
+procedure InitRITF_SH_ZQYEData(pSTK_BIN:string;pZQDM:string;pITF_SH_ZQYESUMMap:TStrDecordMap);
 var
  p_kv:^keyvalue;
+ ptr:PITF_SH_ZQYEData;
 begin
-  InitRBaseData;
-
+  ptr:=pITF_SH_ZQYESUMMap[pZQDM];
   ITF_SH_ZQYEMap:=TStringHashedMap.create;
-  ITF_SH_ZQYEMap.Add('SCDM','01');
-  ITF_SH_ZQYEMap.Add('QSBH','JS509');
-  ITF_SH_ZQYEMap.Add('ZQZH',RBaseData.sZQZH);
-  ITF_SH_ZQYEMap.Add('XWH',RBaseData.sJYDY);
-  ITF_SH_ZQYEMap.Add('ZQDM',RBaseData.sZQDM);
+  ITF_SH_ZQYEMap.Add('SCDM',ptr.sSCDM);
+  ITF_SH_ZQYEMap.Add('QSBH',ptr.sQSBH);
+  ITF_SH_ZQYEMap.Add('ZQZH',ptr.sZQZH);
+  ITF_SH_ZQYEMap.Add('XWH',ptr.sXWH);
+  ITF_SH_ZQYEMap.Add('ZQDM',ptr.sZQDM);
 
-  ITF_SH_ZQYEMap.Add('ZQLB','PT');
-  ITF_SH_ZQYEMap.Add('LTLX','0');
-  //ITF_SH_ZQYEMap.Add('QYLB',' ');
-  ITF_SH_ZQYEMap.Add('GPNF','0');
-  ITF_SH_ZQYEMap.Add('YE1','0');
+  ITF_SH_ZQYEMap.Add('ZQLB',ptr.sZQLB);
+  ITF_SH_ZQYEMap.Add('LTLX',ptr.sLTLX);
+  //ITF_SH_ZQYEMap.Add('QYLB',ptr.sQYLB);
+  ITF_SH_ZQYEMap.Add('GPNF',ptr.sGPNF);
+  ITF_SH_ZQYEMap.Add('YE1',ptr.sYE1);
 
-  ITF_SH_ZQYEMap.Add('YE2','0');
-  //ITF_SH_ZQYEMap.Add('BY',' ');
-  ITF_SH_ZQYEMap.Add('JZRQ',FormatDateTime('yyyymmdd',now()));
+  ITF_SH_ZQYEMap.Add('YE2',inttostr(Strtoint(ptr.sYE2)+StrtoInt(pSTK_BIN)));
+  //ITF_SH_ZQYEMap.Add('BY',ptr.sBY);
+  ITF_SH_ZQYEMap.Add('JZRQ',ptr.sJZRQ);
 
   ITF_SH_ZQYEList:=Tlist.create;
 
@@ -670,19 +805,10 @@ begin
   iCount:=HashMap.Count;
   for iIndex:=0 to iCount-2  do
   begin
-    //p_kv:=ITF_SH_GHList.Items[iIndex];
     sqlStmt1:=sqlStmt1+HashMap.FirstValue(iIndex)+',';
-    {if (HashMap.FirstValue(iIndex)='') or (HashMap.FirstValue(iIndex)=' ') then
-    begin
-      p_kv^.value:='0';
-    end;}
     sqlStmt2:=sqlStmt2+''''+HashMap.SecondeValue(iIndex)+''''+',';
   end;
   sqlStmt1:=sqlStmt1+HashMap.FirstValue(iIndex)+')';
- { if (p_kv^.value='') or (p_kv^.value=' ') then
-  begin
-    p_kv^.value:='0';
-  end; }
   sqlStmt2:=sqlStmt2+''''+HashMap.SecondeValue(iIndex)+''''+')';
   sqlStmt:=sqlStmt1+sqlStmt2;
   result:=sqlStmt;
@@ -720,10 +846,20 @@ var
   sqlStmt:string;
   iCount:integer;
   iIndex:integer;
-  p_kv:^keyvalue;
 begin
-  InitRITF_SH_GHData;
   sqlStmt:=getSqlStmt(filename);
+  GenData.Edit1.Text:=sqlStmt;
+  exectSqlStmt(sqlStmt);
+end;
+procedure deletefile(filename:string);
+var
+  sqlStmt1:string;
+  sqlStmt2:string;
+  sqlStmt:string;
+  iCount:integer;
+  iIndex:integer;
+begin
+  sqlStmt:='delete * from '+filename;
   GenData.Edit1.Text:=sqlStmt;
   exectSqlStmt(sqlStmt);
 end;
@@ -736,6 +872,7 @@ var
   iIndex:integer;
   p_kv:^keyvalue;
 begin
+  InitRBaseData;
   InitRITF_SH_GHData;
   sqlStmt:=getSqlStmt('gh');
   GenData.Edit1.Text:=sqlStmt;
@@ -796,6 +933,7 @@ var
   iIndex:integer;
   p_kv:^keyvalue;
 begin
+  InitRBaseData;
   InitRITF_SH_JSMXData;
   sqlStmt:=getSqlStmt('jsmx');
   GenData.Edit1.Text:=sqlStmt;
@@ -834,7 +972,8 @@ var
   iIndex:integer;
   p_kv:^keyvalue;
 begin
-  InitRITF_SH_ZJHZData;
+  InitRBaseData;
+  //InitRITF_SH_ZJHZData;
   sqlStmt:=getSqlStmt('zjhz');
   GenData.Edit1.Text:=sqlStmt;
   {sqlStmt1:='INSERT INTO zjhz(';
@@ -872,7 +1011,8 @@ var
   iIndex:integer;
   p_kv:^keyvalue;
 begin
-  InitRITF_SH_ZQYEData;
+  InitRBaseData;
+  //InitRITF_SH_ZQYEData;
   sqlStmt:=getSqlStmt('zqye');
   GenData.Edit1.Text:=sqlStmt;
   {sqlStmt1:='INSERT INTO zqye(';
@@ -906,22 +1046,86 @@ var
   sTableName:string;
   sqlStmt:string;
   rows:Integer;
+  iIndex:Integer;
+  iZJZHCount:Integer;
+  iZQYECount:Integer;
+  iSTK_BLN:String;
 begin
+  ITF_SH_ZJHZSUMMap:=TStrDecordMap.Create;
+  ITF_SH_ZQYESUMMap:=TStrDecordMap.Create;
   sTableName:='STK_ORDER';
   Form1.ADOQuery.Close;
   Form1.ADOQuery.SQL.Clear;
-  sqlStmt:='SELECT TRDPBU,TRDACCT,CUACCT_CODE,STK_CODE,MATCHED_QTY,ORDER_PRICE '+
+  sqlStmt:='SELECT CUST_CODE,STKPBU,TRDACCT,CUACCT_CODE,STK_CODE,MATCHED_QTY,ORDER_PRICE,STK_BIZ '+
            'FROM ' +sTableName;
   Form1.ADOQuery.SQL.Add(sqlStmt);
   Form1.ADOQuery.Open;
+  deleteFile('gh');
+  deleteFile('jsmx');
+  deleteFile('zqye');
+  deleteFile('zjhz');
   rows:=Form1.Adoquery.RecordCount;
-  RBaseData.sJYDY:=Form1.Adoquery.FieldValues['TRDPBU'];
-  RBaseData.sZQDM:=Form1.Adoquery.FieldValues['STK_CODE'];
-  RBaseData.sCJSL:=Form1.Adoquery.FieldValues['MATCHED_QTY'];
-  RBaseData.sCJJG:=Form1.Adoquery.FieldValues['ORDER_PRICE'];
-  RBaseData.sZQZH:=Form1.Adoquery.FieldValues['CUACCT_CODE'];
-  RBaseData.sZJZH:=Form1.Adoquery.FieldValues['TRDACCT'];
-  genGHfile;
+  for iIndex:=1 to rows do
+  begin
+    RBaseData.sJYDY:=Form1.Adoquery.FieldValues['STKPBU'];
+    RBaseData.sZQDM:=Form1.Adoquery.FieldValues['STK_CODE'];
+    RBaseData.sCJSL:=Form1.Adoquery.FieldValues['MATCHED_QTY'];
+    RBaseData.sCJJG:=Form1.Adoquery.FieldValues['ORDER_PRICE'];
+    RBaseData.sZQZH:=Form1.Adoquery.FieldValues['CUACCT_CODE'];
+    RBaseData.sZJZH:=Form1.Adoquery.FieldValues['TRDACCT'];
+    RBaseData.sZJZH:=Form1.Adoquery.FieldValues['STK_BIZ'];
+    InitRITF_SH_GHData;
+    genFile('gh');
+    InitRITF_SH_JSMXData;
+    genFile('jsmx');
+    if ITF_SH_ZJHZSUMMap.isfind(RBaseData.sZJZH) then
+    begin
+      calRITF_SH_ZJHZPtrData(RBaseData.sZJZH,ITF_SH_ZJHZSUMMap,ITF_SH_JSMXMap);
+    end
+    else
+    begin
+      InitRITF_SH_ZJHZPtrData(RBaseData.sZJZH,ITF_SH_ZJHZSUMMap,ITF_SH_JSMXMap);
+    end;
+
+    if ITF_SH_ZQYESUMMap.isfind(RBaseData.sZQDM) then
+    begin
+      calRITF_SH_ZQYEPtrData(RBaseData.sZQDM,ITF_SH_ZQYESUMMap,ITF_SH_JSMXMap);
+    end
+    else
+    begin
+      InitRITF_SH_ZQYEPtrData(RBaseData.sZQDM,ITF_SH_ZQYESUMMap,ITF_SH_JSMXMap);
+    end;
+    Form1.Adoquery.Next;
+  end;
+  iZJZHCount:=ITF_SH_ZJHZSUMMap.Count;
+  for iIndex:=1 to iZJZHCount do
+  begin
+    InitRITF_SH_ZJHZData(ITF_SH_ZJHZSUMMap.FirstValue(iIndex-1),ITF_SH_ZJHZSUMMap);
+    genFile('zjhz');
+  end;
+
+  iZQYECount:=ITF_SH_ZQYESUMMap.Count;
+  for iIndex:=1 to iZQYECount do
+  begin
+    sTableName:='STK_ASSET';
+    Form1.ADOQuery.Close;
+    Form1.ADOQuery.SQL.Clear;
+    sqlStmt:='SELECT STK_BLN '+
+           'FROM ' +sTableName+' where STK_CODE='+ITF_SH_ZJHZSUMMap.FirstValue(iIndex-1);
+    Form1.ADOQuery.SQL.Add(sqlStmt);
+    Form1.ADOQuery.Open;
+
+    if Form1.ADOQuery.RecordCount=0 then
+    begin
+      iSTK_BLN:='0';
+    end
+    else
+    begin
+      iSTK_BLN:=Form1.Adoquery.FieldValues['STK_BIN'];
+    end;
+    InitRITF_SH_ZQYEData(iSTK_BLN,ITF_SH_ZQYESUMMap.FirstValue(iIndex-1),ITF_SH_ZQYESUMMap);
+    genFile('zqye');
+  end;
 end;
 function LeftZeroMatch(iNum:Integer;iCount:Integer):string;
 var
@@ -937,12 +1141,19 @@ begin
   end;
   LeftZeroMatch:=ReverseString(sNumString);
 end;
-
+type
+  IntegerArr=record
+    i:string;
+    j:string;
+end;
 procedure TGenData.FormCreate(Sender: TObject);
 var
   TSH:TStringHashedMap;
   TSH2:TStringHashedMap;
   TSH3:TStringHashedMap;
+  TSD:TStrDecordMap;
+  TSD1:TStrDecordMap;
+  p_IntegerArr:^IntegerArr;
 begin
   iCJBH:=1;
   iSQBH:=1;
@@ -953,9 +1164,39 @@ begin
   TSH3:=TStringHashedMap.Create;
   TSH.Add('k1','a');
   TSH.Add('k2','ab');
-   TSH3.Add('ss','ssss');
+  TSH3.Add('ss','ssss');
   TSH2:=TSH;
-  showmessage(TSH3.FirstValue(0));
+  TSD:=TStrDecordMap.Create;
+  new(p_IntegerArr);
+  p_IntegerArr.i:='11';
+  p_IntegerArr.j:='22';
+  TSD.Add('aa',p_IntegerArr);
+  new(p_IntegerArr);
+  p_IntegerArr.i:='12';
+  p_IntegerArr.j:='23';
+  TSD.Add('aab',p_IntegerArr);
+  //p_IntegerArr:=TSD.SecondeValue(1);
+
+ // addmap(TSD1);
+  TSD1:=TStrDecordMap.Create;
+  TSD1.Add('2212',p_IntegerArr);
+  addmap(TSD1);
+  //showmessage(inttostr(TSD1.Count));
+   Dispose(p_IntegerArr);
+end;
+procedure addmap(pTStrDecordMap:TStrDecordMap);
+var
+p_IntegerArr:^IntegerArr;
+begin
+  new(p_IntegerArr);
+  p_IntegerArr.i:='1';
+  p_IntegerArr.j:='2';
+  pTStrDecordMap.Add('234',p_IntegerArr);
+end;
+procedure TGenData.ShowOPTButtonClick(Sender: TObject);
+begin
+  GenOptDataForm.Show;
+ // GenData.Close;
 end;
 
 end.
